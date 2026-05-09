@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Vlady
+# SPDX-License-Identifier: AGPL-3.0-only
+
 """Обработчики (handlers) для всех MCP tools.
 
 Каждый handler получает ServiceNowClient + аргументы и возвращает JSON-строку.

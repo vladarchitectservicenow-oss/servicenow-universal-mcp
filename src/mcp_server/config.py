@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Vlady
+# SPDX-License-Identifier: AGPL-3.0-only
+
 """Конфигурация сервера — загружается из .env / переменных окружения."""
 
 import os

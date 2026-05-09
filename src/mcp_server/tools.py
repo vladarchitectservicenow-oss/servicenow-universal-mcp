@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Vlady
+# SPDX-License-Identifier: AGPL-3.0-only
+
 """MCP Tools — полный набор инструментов для всех модулей ServiceNow.
 
 Все инструменты возвращают JSON-строки (требование MCP).

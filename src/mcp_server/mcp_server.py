@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Vlady
+# SPDX-License-Identifier: AGPL-3.0-only
+
 """Универсальный MCP-сервер — ядро проекта.
 
 Реализует Model Context Protocol (MCP) для интеграции любой LLM с ServiceNow.

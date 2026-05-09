@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Vlady
+# SPDX-License-Identifier: AGPL-3.0-only
+
 """LLM abstraction — единый интерфейс для всех провайдеров.
 
 Поддерживает: OpenAI, Anthropic, DeepSeek, Ollama, OpenRouter.

@@ -1,3 +1,6 @@
+# Copyright (c) 2026 Vlady
+# SPDX-License-Identifier: AGPL-3.0-only
+
 """ServiceNow Universal MCP Server — LLM-agnostic MCP server for ServiceNow.
 
 Подключает любую LLM к ServiceNow через Model Context Protocol.
