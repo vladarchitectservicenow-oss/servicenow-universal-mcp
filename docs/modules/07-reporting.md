@@ -1,32 +1,35 @@
-# Отчёты и аналитика (Reporting & Analytics)
+# Reporting & Analytics
 
-**Модуль ServiceNow:** SLA (`task_sla`), Incidents, Performance Analytics
+**ServiceNow Module:** SLA (`task_sla`), Incidents, Performance Analytics
 
-## Назначение
-Метрики производительности ИТ-поддержки: SLA-нарушения, среднее время решения (MTTR), загрузка групп, тренды.
+## Purpose
 
-## Что умеет MCP-инструмент
+IT support performance metrics: SLA breaches, Mean Time to Resolution (MTTR), group workload, overdue trends.
 
-| Инструмент | Описание |
-|------------|----------|
-| `report_performance` | Мульти-метрика: sla_breach, mttr, group_load, overdue_trend |
+## Available MCP Tools
 
-## Примеры использования
+| Tool | Description |
+|------|-------------|
+| `report_performance` | Multi-metric: sla_breach, mttr, group_load, overdue_trend |
+
+## Example Prompts
 
 ```
-> Сколько SLA-нарушений сегодня?
-> Какая группа перегружена больше всего?
-> Покажи процент просроченных инцидентов за месяц
-> Какое среднее время решения по критическим инцидентам?
+> How many SLA breaches today?
+> Which group has the heaviest workload right now?
+> Show me the percentage of overdue incidents this month
+> What's the average resolution time for critical incidents?
 ```
 
-## Доступные метрики
+## Available Metrics
 
-- `sla_breach` — количество нарушений SLA
-- `mttr` — среднее время до решения
-- `group_load` — загрузка групп (активные инциденты)
-- `overdue_trend` — процент просроченных
+| Metric | What it shows |
+|--------|---------------|
+| `sla_breach` | Count of breached SLAs |
+| `mttr` | Mean Time to Resolution (resolved incidents) |
+| `group_load` | Active incidents per assignment group |
+| `overdue_trend` | % of active incidents past due date |
 
 ---
 
-*Автор: Vlady | Лицензия: AGPL-3.0 | 2026*
+*Author: Vlady | License: AGPL-3.0 | 2026*

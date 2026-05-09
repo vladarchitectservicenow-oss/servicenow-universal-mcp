@@ -1,30 +1,31 @@
-# Интеграции (Integrations)
+# Integrations
 
-**Модуль ServiceNow:** REST Messages (`sys_rest_message`), Webhooks
+**ServiceNow Module:** REST Messages (`sys_rest_message`), Webhooks
 
-## Назначение
-Аудит и просмотр внешних интеграций: REST API-подключения к сторонним сервисам, эндпоинты, типы аутентификации.
+## Purpose
 
-## Что умеет MCP-инструмент
+Audit and view external integrations: REST API connections to third-party services, endpoints, authentication types.
 
-| Инструмент | Описание |
-|------------|----------|
-| `integration_list` | Список активных REST-интеграций с эндпоинтами |
+## Available MCP Tools
 
-## Примеры использования
+| Tool | Description |
+|------|-------------|
+| `integration_list` | List active REST integrations with endpoints |
+
+## Example Prompts
 
 ```
-> Покажи все внешние интеграции с эндпоинтами
-> Есть ли интеграция с Azure AD?
-> Найди все интеграции, связанные с мониторингом
+> Show all external integrations with their endpoints
+> Is there an integration with Azure AD?
+> Find all integrations related to monitoring
 ```
 
-## Ключевые поля
+## Key Fields
 
-- `endpoint` — URL внешнего API
+- `endpoint` — external API URL
 - `authentication_type` — basic, oauth, api_key
-- `active=true` — 11 интеграций на PDI (Azure AD, Slack, Jira, Okta, AWS, Datadog, SAP...)
+- `active=true` — 11 integrations on test PDI (Azure AD, Slack, Jira, Okta, AWS, Datadog, SAP...)
 
 ---
 
-*Автор: Vlady | Лицензия: AGPL-3.0 | 2026*
+*Author: Vlady | License: AGPL-3.0 | 2026*

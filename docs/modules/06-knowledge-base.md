@@ -1,31 +1,32 @@
-# База знаний (Knowledge Base)
+# Knowledge Base
 
-**Модуль ServiceNow:** Knowledge Articles (`kb_knowledge`)
+**ServiceNow Module:** Knowledge Articles (`kb_knowledge`)
 
-## Назначение
-Поиск опубликованных статей базы знаний по ключевым словам. Помощь пользователям и агентам в решении проблем.
+## Purpose
 
-## Что умеет MCP-инструмент
+Search published knowledge base articles by keywords. Help users and agents resolve issues faster.
 
-| Инструмент | Описание |
-|------------|----------|
-| `kb_search` | Поиск статей по запросу и категории |
+## Available MCP Tools
 
-## Примеры использования
+| Tool | Description |
+|------|-------------|
+| `kb_search` | Search articles by query and category |
+
+## Example Prompts
 
 ```
-> Как настроить VPN на MacOS?
-> Найди статьи по сбросу пароля
-> Что в KB есть по теме "MFA setup"?
+> How to configure VPN on macOS?
+> Find articles about password reset
+> What does the KB say about "MFA setup"?
 ```
 
-## Ключевые поля
+## Key Fields
 
-- `kb_knowledge` — таблица статей
-- `workflow_state=published` — только опубликованные
-- Поиск по `short_description` и `text`
-- 53 статьи на PDI (май 2026)
+- `kb_knowledge` — articles table
+- `workflow_state=published` — only published articles returned
+- Search across `short_description` and `text` fields
+- 53 articles on test PDI (May 2026)
 
 ---
 
-*Автор: Vlady | Лицензия: AGPL-3.0 | 2026*
+*Author: Vlady | License: AGPL-3.0 | 2026*

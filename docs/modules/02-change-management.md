@@ -1,35 +1,36 @@
-# Изменения (Change Management)
+# Change Management
 
-**Модуль ServiceNow:** Change Request (`change_request`)
+**ServiceNow Module:** Change Request (`change_request`)
 
-## Назначение
-Управление запросами на изменения ИТ-инфраструктуры: от создания до утверждения и внедрения. Процесс с контролем рисков.
+## Purpose
 
-## Что умеет MCP-инструмент
+Manage IT infrastructure change requests: from draft to approval and implementation. Risk-controlled process.
 
-| Инструмент | Описание |
-|------------|----------|
-| `change_list` | Список изменений с фильтрацией: тип, статус утверждения, дата |
-| `change_create` | Создать запрос на изменение: описание, тип, риск, план |
-| `change_approve` | Утвердить или отклонить запрос |
+## Available MCP Tools
 
-## Примеры использования
+| Tool | Description |
+|------|-------------|
+| `change_list` | List changes with filters: type, approval status, planned date |
+| `change_create` | Create a change request: description, type, risk, implementation plan |
+| `change_approve` | Approve or reject a change request |
+
+## Example Prompts
 
 ```
-> Какие изменения запланированы на эти выходные и их статус?
-> Создай standard change для еженедельного патч-цикла, суббота 11 PM
-> Покажи все emergency changes за последние 7 дней с уровнем риска
-> Утверди CHG0001234 с комментарием "Риск рассчитан, план проверен"
+> What changes are planned for this weekend and their approval status?
+> Create a standard change for the weekly patch cycle, Saturday 11 PM IST
+> Show me all emergency changes from the last 7 days with their risk levels
+> Approve CHG0001234 — "Risk assessed, implementation plan verified"
 ```
 
-## Ключевые поля
+## Key Fields
 
-- `number` — номер (CHG...)
+- `number` — change number (CHG...)
 - `type` — normal, standard, emergency
 - `risk` — high, medium, low
 - `approval` — requested, approved, rejected
-- `state` — черновик → утверждён → в работе → закрыт
+- `state` — draft → approved → in progress → closed
 
 ---
 
-*Автор: Vlady | Лицензия: AGPL-3.0 | 2026*
+*Author: Vlady | License: AGPL-3.0 | 2026*

@@ -1,34 +1,35 @@
-# CMDB (Configuration Management Database)
+# CMDB — Configuration Management
 
-**Модуль ServiceNow:** Configuration Items (`cmdb_ci`), Relationships (`cmdb_rel_ci`)
+**ServiceNow Module:** Configuration Items (`cmdb_ci`), Relationships (`cmdb_rel_ci`)
 
-## Назначение
-Учёт и управление конфигурационными единицами (CI): серверы, приложения, базы данных, сеть. Отслеживание зависимостей между ними.
+## Purpose
 
-## Что умеет MCP-инструмент
+Track and manage Configuration Items (CIs): servers, applications, databases, network devices. Map dependencies between them.
 
-| Инструмент | Описание |
-|------------|----------|
-| `cmdb_search` | Поиск CI: название, класс, окружение |
-| `cmdb_relationships` | Зависимости: что зависит от CI и от чего зависит он |
-| `cmdb_health` | Здоровье CMDB: дубликаты, сироты, устаревшие |
+## Available MCP Tools
 
-## Примеры использования
+| Tool | Description |
+|------|-------------|
+| `cmdb_search` | Search CIs by name, class, environment |
+| `cmdb_relationships` | Show dependencies: what depends on a CI and what it depends on |
+| `cmdb_health` | CMDB health summary: duplicates, orphans, stale records |
+
+## Example Prompts
 
 ```
-> Найди все серверы в Production на Windows Server 2019
-> Какие приложения зависят от PROD-DB-01?
-> Покажи зависимости для SAP-кластера
-> Дай сводку здоровья CMDB
+> Find all servers in Production running Windows Server 2019
+> Which applications depend on PROD-DB-01?
+> Show dependencies for the SAP cluster
+> Give me a CMDB health summary
 ```
 
-## Ключевые поля
+## Key Fields
 
-- `name` — название CI
-- `sys_class_name` — класс (Server, Application, Database, Network Gear...)
+- `name` — CI name
+- `sys_class_name` — class (Server, Application, Database, Network Gear...)
 - `environment` — Production, Test, Development, Staging
-- `cmdb_rel_ci` — parent → child отношения
+- `cmdb_rel_ci` — parent → child relationships
 
 ---
 
-*Автор: Vlady | Лицензия: AGPL-3.0 | 2026*
+*Author: Vlady | License: AGPL-3.0 | 2026*

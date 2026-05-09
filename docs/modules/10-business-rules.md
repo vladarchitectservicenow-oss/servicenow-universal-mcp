@@ -1,31 +1,32 @@
-# Бизнес-правила и скрипты (Business Rules)
+# Business Rules & Scripts
 
-**Модуль ServiceNow:** Scripts (`sys_script`), Business Rules
+**ServiceNow Module:** Scripts (`sys_script`), Business Rules
 
-## Назначение
-Аудит бизнес-правил на таблицах — серверных скриптов, срабатывающих при операциях с записями.
+## Purpose
 
-## Что умеет MCP-инструмент
+Audit business rules on tables — server-side scripts that trigger on record operations.
 
-| Инструмент | Описание |
-|------------|----------|
-| `business_rule_list` | Список бизнес-правил на таблице: активные, условия, скрипты |
+## Available MCP Tools
 
-## Примеры использования
+| Tool | Description |
+|------|-------------|
+| `business_rule_list` | List business rules on a table: active, conditions, scripts |
+
+## Example Prompts
 
 ```
-> Покажи все бизнес-правила на таблице incident
-> Сколько активных правил на sc_req_item?
-> Найди правила, срабатывающие при insert на change_request
+> Show all business rules on the incident table
+> How many active rules are on sc_req_item?
+> Find rules that fire on insert for change_request
 ```
 
-## Ключевые поля
+## Key Fields
 
-- `collection` — имя таблицы
-- `when` — условие срабатывания (before/after insert/update/delete)
-- `active` — 5,654 бизнес-правил на PDI
-- `script` — тело скрипта
+- `collection` — table name
+- `when` — trigger condition (before/after insert/update/delete)
+- `active` — 5,654 business rules on test PDI
+- `script` — script body
 
 ---
 
-*Автор: Vlady | Лицензия: AGPL-3.0 | 2026*
+*Author: Vlady | License: AGPL-3.0 | 2026*

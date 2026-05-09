@@ -1,31 +1,32 @@
-# Рабочие процессы (Workflows & Flow Designer)
+# Workflows & Flow Designer
 
-**Модуль ServiceNow:** Workflow Versions (`wf_workflow_version`), Flows
+**ServiceNow Module:** Workflow Versions (`wf_workflow_version`), Flows
 
-## Назначение
-Просмотр и аудит автоматизированных рабочих процессов (workflows, flows), опубликованных в системе.
+## Purpose
 
-## Что умеет MCP-инструмент
+View and audit automated workflows and flows published in the system.
 
-| Инструмент | Описание |
-|------------|----------|
-| `workflow_list` | Список опубликованных workflows с поиском по названию |
+## Available MCP Tools
 
-## Примеры использования
+| Tool | Description |
+|------|-------------|
+| `workflow_list` | List published workflows with name search |
+
+## Example Prompts
 
 ```
-> Покажи все опубликованные workflows
-> Найди workflow для процесса онбординга
-> Сколько у нас активных flows связано с инцидентами?
+> Show all published workflows
+> Find workflows related to onboarding
+> How many active flows are tied to incident management?
 ```
 
-## Ключевые поля
+## Key Fields
 
-- `wf_workflow_version` — версии рабочих процессов
-- `published=true` — только опубликованные
-- 6 workflows на PDI (май 2026)
-- ServiceNow Australia: Workflow Studio объединяет Flow Designer + Playbooks + Decision Tables
+- `wf_workflow_version` — workflow version records
+- `published=true` — only published workflows returned
+- 6 workflows on test PDI (May 2026)
+- ServiceNow Australia: Workflow Studio unifies Flow Designer + Playbooks + Decision Tables
 
 ---
 
-*Автор: Vlady | Лицензия: AGPL-3.0 | 2026*
+*Author: Vlady | License: AGPL-3.0 | 2026*

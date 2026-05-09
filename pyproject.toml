@@ -1,7 +1,7 @@
 [project]
 name = "servicenow-universal-mcp"
 version = "1.0.0"
-description = "Универсальный MCP-сервер для ServiceNow — подключает любую LLM (OpenAI, Anthropic, DeepSeek, Ollama, OpenRouter) к ServiceNow через Model Context Protocol"
+description = "Universal MCP server for ServiceNow — connects any LLM (OpenAI, Anthropic, DeepSeek, Ollama, OpenRouter) to ServiceNow via Model Context Protocol"
 authors = [
     {name = "Vlady", email = "vladarchitect@github"}
 ]

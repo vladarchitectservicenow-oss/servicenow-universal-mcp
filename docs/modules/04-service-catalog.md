@@ -1,34 +1,35 @@
-# Каталог услуг и запросы (Service Catalog)
+# Service Catalog & Requests
 
-**Модуль ServiceNow:** Catalog Items (`sc_cat_item`), Requests (`sc_request`, `sc_req_item`)
+**ServiceNow Module:** Catalog Items (`sc_cat_item`), Requests (`sc_request`, `sc_req_item`)
 
-## Назначение
-Просмотр каталога услуг, создание запросов, проверка статуса и управление утверждениями.
+## Purpose
 
-## Что умеет MCP-инструмент
+Browse the service catalog, raise requests, check status, and manage approvals — through conversation, without navigating the self-service portal.
 
-| Инструмент | Описание |
-|------------|----------|
-| `catalog_list` | Поиск элементов каталога по названию и категории |
-| `request_create` | Создать запрос через Cart API (автоматический checkout) |
-| `request_status` | Проверить статус запроса по номеру (REQ/RITM/SCTASK) |
-| `request_approvals` | Показать все ожидающие утверждения |
+## Available MCP Tools
 
-## Примеры использования
+| Tool | Description |
+|------|-------------|
+| `catalog_list` | Search catalog items by name and category |
+| `request_create` | Create a service request via Cart API (auto checkout) |
+| `request_status` | Check request status by number (REQ/RITM/SCTASK) |
+| `request_approvals` | Show all pending approval requests |
+
+## Example Prompts
 
 ```
-> Найди в каталоге услугу "Доступ к VPN"
-> Создай запрос на Adobe Acrobat для sarah.jones@company.com
-> Какой статус у моего запроса REQ0098765?
-> Покажи все запросы, ожидающие моего утверждения
+> Find "VPN Access" in the service catalog
+> Raise a software access request for Adobe Acrobat for sarah.jones@company.com
+> What's the current status of my request REQ0098765?
+> Show all requests awaiting my approval
 ```
 
-## Ключевые поля
+## Key Fields
 
-- `sc_cat_item` — каталог (197 items на PDI, 147 активных)
+- `sc_cat_item` — catalog items (197 total on test PDI, 147 active)
 - `sc_request` (REQ) → `sc_req_item` (RITM) → `sc_task` (SCTASK)
-- Запросы создаются через Service Catalog Cart API
+- Requests are created through the Service Catalog Cart API
 
 ---
 
-*Автор: Vlady | Лицензия: AGPL-3.0 | 2026*
+*Author: Vlady | License: AGPL-3.0 | 2026*

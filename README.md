@@ -1,57 +1,58 @@
 # ServiceNow Universal MCP
 
-> **Подключи любую LLM к ServiceNow. Без привязки к Claude. Без привязки к OpenAI. Один протокол — любой провайдер.**
+> **Connect any LLM to ServiceNow. No Claude lock-in. No OpenAI lock-in. One protocol — any provider.**
 
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-blue.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-green.svg)](https://www.python.org/)
 [![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-purple.svg)](https://modelcontextprotocol.io/)
 
-Универсальный MCP-сервер, который превращает **ServiceNow** в conversational-интерфейс для **любой LLM**: OpenAI GPT-4o, Anthropic Claude, DeepSeek, Ollama (локальные модели), OpenRouter и любые OpenAI-совместимые API.
+A universal MCP server that turns **ServiceNow** into a conversational interface for **any LLM**: OpenAI GPT-4o, Anthropic Claude, DeepSeek, Ollama (local models), OpenRouter, and any OpenAI-compatible API.
 
 ---
 
-## 🤔 Зачем это нужно?
+## 🤔 Why this exists
 
-Оригинальный пост LinkedIn (май 2026) показал MCP-интеграцию Claude → ServiceNow. Проблема: решение **привязано к Claude Desktop**. 
+In May 2026, a LinkedIn post went viral showing an MCP integration: Claude → ServiceNow. Beautiful idea: *"The future isn't better UI. It's no UI."*
 
-**ServiceNow Universal MCP** делает то же самое, но:
+Problem: that solution is **locked to Claude Desktop**.
+
+**ServiceNow Universal MCP** does the same thing — but for any provider:
 
 | | Claude MCP | Universal MCP |
 |---|---|---|
 | Claude (Anthropic) | ✅ | ✅ |
 | OpenAI GPT-4o | ❌ | ✅ |
 | DeepSeek | ❌ | ✅ |
-| Ollama (локально) | ❌ | ✅ |
-| OpenRouter | ❌ | ✅ |
-| Любой OpenAI-API | ❌ | ✅ |
+| Ollama (local) | ❌ | ✅ |
+| OpenRouter (150+ models) | ❌ | ✅ |
+| Any OpenAI-compatible API | ❌ | ✅ |
 | STDIO mode | ✅ | ✅ |
-| HTTP SSE mode | ❌ | ✅ |
-| 24+ модулей ServiceNow | 4-5 | ✅ **24** |
+| HTTP/SSE mode | ❌ | ✅ |
+| ServiceNow modules covered | ~5 | **11** |
 
 ---
 
-## 📦 Возможности (24 модуля ServiceNow)
+## 📦 Capabilities (11 ServiceNow modules, 26 tools)
 
-| Модуль | Что можно делать |
+| Module | What you can do |
 |--------|------------------|
-| **Incident Management** | Создавать, искать, обновлять, получать статистику инцидентов |
-| **Change Management** | Создавать CR, утверждать, отслеживать статус |
-| **Problem Management** | Создавать проблемы, привязывать инциденты, искать root cause |
-| **Service Catalog** | Просматривать каталог, создавать запросы, проверять статус |
-| **CMDB** | Искать CI, смотреть зависимости, проверять здоровье |
-| **Knowledge Base** | Искать статьи, получать контент |
-| **Reporting & Analytics** | SLA-отчёты, MTTR, загрузка групп, overdue |
-| **Workflow / Flow Designer** | Список рабочих процессов |
-| **Integrations** | Список REST-интеграций с эндпоинтами |
-| **Business Rules** | Просмотр бизнес-правил на таблицах |
-| **Users & Groups** | Информация о пользователях, состав групп |
-| **+ ещё 13 модулей** | Service Portal, Virtual Agent, Approvals, SLA и др. |
+| **Incident Management** | Create, search, update, stats (5 tools) |
+| **Change Management** | Create CRs, approve/reject, filter by type (3 tools) |
+| **Problem Management** | Create problems, link incidents, root cause (3 tools) |
+| **Service Catalog** | Browse catalog, create requests, check status (4 tools) |
+| **CMDB** | Search CIs, show dependencies, health check (3 tools) |
+| **Knowledge Base** | Search published articles (1 tool) |
+| **Reporting & Analytics** | SLA breaches, MTTR, group load, overdue trend |
+| **Workflows** | List published workflows/flows (1 tool) |
+| **Integrations** | List REST integrations with endpoints (1 tool) |
+| **Business Rules** | Audit business rules per table (1 tool) |
+| **Users & Groups** | Look up users, list group members (2 tools) |
 
 ---
 
-## 🚀 Быстрый старт
+## 🚀 Quick Start
 
-### 1. Установка
+### 1. Install
 
 ```bash
 git clone https://github.com/vladarchitectservicenow-oss/servicenow-universal-mcp.git
@@ -59,13 +60,13 @@ cd servicenow-universal-mcp
 pip install -e ".[all]"
 ```
 
-### 2. Настройка
+### 2. Configure
 
 ```bash
 cp .env.example .env
-# Заполни .env:
-#   - Данные ServiceNow (SNOW_INSTANCE_URL, SNOW_USERNAME, SNOW_PASSWORD)
-#   - Ключ к ЛЮБОМУ LLM-провайдеру (выбери один):
+# Fill in .env:
+#   - ServiceNow credentials (SNOW_INSTANCE_URL, SNOW_USERNAME, SNOW_PASSWORD)
+#   - Any ONE LLM provider key:
 #       OpenAI: OPENAI_API_KEY
 #       Anthropic: ANTHROPIC_API_KEY
 #       DeepSeek: DEEPSEEK_API_KEY
@@ -73,31 +74,33 @@ cp .env.example .env
 #       OpenRouter: OPENROUTER_API_KEY
 ```
 
-### 3. Запуск
+The server **auto-discovers** which provider is available. Set one, skip the rest.
+
+### 3. Run
 
 ```bash
-# Режим STDIO (для Claude Desktop, Continue, Cline)
+# STDIO mode (Claude Desktop, Continue, Cline, any MCP client)
 sn-mcp --stdio
 
-# Режим HTTP (для веб-клиентов, Open WebUI, своего фронтенда)
+# HTTP mode (web clients, Open WebUI, custom frontends)
 sn-mcp --sse --port 8000
 ```
 
-### 4. Использование
+### 4. Use
 
-После запуска любая LLM с поддержкой MCP может управлять ServiceNow:
+Once running, any LLM with MCP support can control ServiceNow:
 
-> *«Создай инцидент P1 для падения продакшен-базы, назначь на DBA team»*
+> *"Create a P1 incident for the production DB being down, assign to DBA team"*
 >
-> *«Покажи все change requests на эти выходные со статусом approval»*
+> *"Show all change requests planned for this weekend with their approval status"*
 >
-> *«Какая команда имеет больше всего просроченных инцидентов в этом месяце?»*
+> *"Which team has the most overdue incidents this month?"*
 >
-> *«Найди все серверы в Production на Windows Server 2019»*
+> *"Find all servers in Production running Windows Server 2019"*
 
 ---
 
-## 🏗️ Архитектура
+## 🏗️ Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -111,10 +114,10 @@ sn-mcp --sse --port 8000
 │  └──────────────┘  └──────────────┘  └───────────────┘  │
 │                         ↓                                │
 │  ┌──────────────────────────────────────────────────┐   │
-│  │           ToolHandlers (диспетчер)                │   │
-│  │  incident_create  | change_approve | cmdb_search │   │
-│  │  problem_link     | catalog_list   | kb_search   │   │
-│  │  ... + ещё 20 инструментов                      │   │
+│  │              ToolHandlers (dispatcher)            │   │
+│  │  incident_create | change_approve | cmdb_search  │   │
+│  │  problem_link    | catalog_list   | kb_search    │   │
+│  │  ... + 20 more tools                             │   │
 │  └──────────────────────────────────────────────────┘   │
 ├─────────────────────────────────────────────────────────┤
 │               ServiceNow Instance                        │
@@ -129,13 +132,13 @@ sn-mcp --sse --port 8000
 ```bash
 sn-mcp --help
 
-# Режимы запуска
-sn-mcp --stdio              # STDIO — Claude Desktop, Continue
-sn-mcp --sse                # HTTP SSE на порту 8000
-sn-mcp --sse --port 9090    # HTTP на своём порту
-sn-mcp --stdio --verbose    # Отладка
+# Run modes
+sn-mcp --stdio              # STDIO — Claude Desktop, Continue, Cline
+sn-mcp --sse                # HTTP SSE on port 8000
+sn-mcp --sse --port 9090    # Custom port
+sn-mcp --stdio --verbose    # Debug mode
 
-# Прямой чат с LLM (без MCP)
+# Direct chat (bypass MCP protocol)
 python -c "
 import asyncio
 from mcp_server.config import Config
@@ -145,7 +148,7 @@ from mcp_server.mcp_server import UniversalMCPServer
 async def main():
     cfg = Config()
     server = UniversalMCPServer(ServiceNowClient(cfg.sn), cfg)
-    answer = await server.chat('Сколько открытых инцидентов сейчас?')
+    answer = await server.chat('How many open incidents right now?')
     print(answer)
 
 asyncio.run(main())
@@ -154,77 +157,78 @@ asyncio.run(main())
 
 ---
 
-## 🔧 Поддерживаемые LLM Providers
+## 🔧 Supported LLM Providers
 
-| Provider | Модели | Переменная |
-|----------|--------|------------|
+| Provider | Models | Env Variable |
+|----------|--------|--------------|
 | **OpenAI** | GPT-4o, GPT-4-turbo, GPT-3.5 | `OPENAI_API_KEY` |
 | **Anthropic** | Claude Opus, Sonnet, Haiku | `ANTHROPIC_API_KEY` |
 | **DeepSeek** | deepseek-chat, deepseek-reasoner | `DEEPSEEK_API_KEY` |
-| **Ollama** | Llama3, Qwen2.5, Mistral, Gemma | `OLLAMA_HOST` |
-| **OpenRouter** | Все модели (150+) | `OPENROUTER_API_KEY` |
-| **Custom** | Любой OpenAI-совместимый API | `base_url` + `api_key` в коде |
+| **Ollama** | Llama 3, Qwen 2.5, Mistral, Gemma | `OLLAMA_HOST` |
+| **OpenRouter** | 150+ models | `OPENROUTER_API_KEY` |
+| **Custom** | Any OpenAI-compatible API | `base_url` + `api_key` in code |
 
 ---
 
-## 📂 Структура проекта
+## 📂 Project Structure
 
 ```
 servicenow-universal-mcp/
 ├── src/mcp_server/
-│   ├── __init__.py          # Версия, метаданные
-│   ├── config.py            # Конфигурация (.env автозагрузка)
-│   ├── client.py            # ServiceNow REST API клиент
-│   ├── mcp_server.py        # Ядро: MCP протокол + STDIO/SSE
-│   ├── tools.py             # TOOLS — 30+ инструментов (схемы)
-│   ├── cli.py               # CLI точка входа
+│   ├── __init__.py          # Version, metadata
+│   ├── config.py            # Configuration (auto .env loading)
+│   ├── client.py            # ServiceNow REST API client
+│   ├── mcp_server.py        # Core: MCP protocol + STDIO/SSE
+│   ├── tools.py             # 26 MCP tools (schemas)
+│   ├── cli.py               # CLI entry point
 │   ├── modules/
-│   │   └── __init__.py      # ToolHandlers — реализация всех tools
+│   │   └── __init__.py      # ToolHandlers — tool implementations
 │   └── llm/
-│       └── __init__.py      # LLM-адаптеры (OpenAI/Anthropic/Ollama)
-├── docs/                    # Документация
-├── examples/                # Примеры использования
-├── tests/                   # Тесты
-├── pyproject.toml           # Зависимости и сборка
-├── LICENSE                  # AGPL-3.0 + commercial
-├── .env.example             # Шаблон конфигурации
-└── README.md                # Этот файл
+│       └── __init__.py      # LLM adapters (OpenAI/Anthropic/Ollama)
+├── docs/modules/            # Per-module documentation (English)
+├── examples/                # Usage examples
+├── tests/                   # Tests
+├── marketing/               # LinkedIn post, promotional materials
+├── pyproject.toml           # Dependencies & build
+├── LICENSE                  # AGPL-3.0 + commercial clause
+├── .env.example             # Configuration template
+└── README.md                # This file
 ```
 
 ---
 
-## 🧪 Тестирование на реальном инстансе
+## 🧪 Tested on a real instance
 
-Проект протестирован на PDI ServiceNow:
-- **197 catalog items** (147 активных)
+Verified against a ServiceNow PDI:
+- **197 catalog items** (147 active)
 - **6 workflows**
-- **11 интеграций** (Azure AD, Slack, Jira, Okta, AWS...)
+- **11 integrations** (Azure AD, Slack, Jira, Okta, AWS, SAP, Datadog...)
 - **Australia release** (AI Agent Studio, Now Assist skills, Generative AI Controller)
 
 ---
 
-## 📄 Лицензия
+## 📄 License
 
-**AGPL-3.0** — свободное использование с одним условием: если вы модифицируете код и предоставляете его как сервис, вы обязаны открыть исходный код.
+**AGPL-3.0** — free use with one condition: if you modify the code and provide it as a service (SaaS), you must open-source your changes.
 
-**Коммерческая лицензия** — для встраивания в проприетарные продукты без обязательств AGPL-3.0.
-Связь: создайте issue в репозитории.
+**Commercial license** — for embedding in proprietary products without AGPL-3.0 obligations.
+Contact: open an issue in the repository.
 
 ---
 
-## 🤝 Контрибьюция
+## 🤝 Contributing
 
-1. Форкните репозиторий
-2. Создайте ветку: `git checkout -b feature/имя-модуля`
-3. Добавьте новый модуль в `tools.py` + handler в `modules/__init__.py`
-4. Запушьте и создайте Pull Request
+1. Fork the repo
+2. Create a branch: `git checkout -b feature/module-name`
+3. Add a new module: schema in `tools.py` + handler in `modules/__init__.py`
+4. Push and open a Pull Request
 
-**Добавить новый ServiceNow модуль — 15 минут:**
+**Add a new ServiceNow module in 15 minutes:**
 ```python
-# 1. tools.py — добавьте схему
+# 1. tools.py — add schema
 {"name": "my_module_action", "description": "...", "inputSchema": {...}},
 
-# 2. modules/__init__.py — добавьте handler
+# 2. modules/__init__.py — add handler
 async def handle_my_module_action(self, a: dict) -> str:
     result = await self.client.list("my_table", ...)
     return _ok(data=result)
@@ -232,6 +236,6 @@ async def handle_my_module_action(self, a: dict) -> str:
 
 ---
 
-⭐ **Если проект полезен — поставьте звезду на GitHub. Это помогает другим найти его.**
+⭐ **If this project is useful — star it on GitHub. It helps others discover it.**
 
-Построено [Hermes Agent](https://github.com/NousResearch/hermes-agent) — агентом, который сам учится.
+Built by [Vlady](https://github.com/vladarchitectservicenow-oss) with [Hermes Agent](https://github.com/NousResearch/hermes-agent).

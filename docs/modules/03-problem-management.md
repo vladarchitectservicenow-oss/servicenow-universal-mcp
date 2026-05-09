@@ -1,33 +1,34 @@
-# Проблемы (Problem Management)
+# Problem Management
 
-**Модуль ServiceNow:** Problem (`problem`)
+**ServiceNow Module:** Problem (`problem`)
 
-## Назначение
-Поиск корневых причин инцидентов, устранение повторяющихся сбоев. Предотвращение будущих инцидентов.
+## Purpose
 
-## Что умеет MCP-инструмент
+Root cause analysis of incidents. Eliminate recurring failures and prevent future incidents.
 
-| Инструмент | Описание |
-|------------|----------|
-| `problem_create` | Создать запись проблемы: описание, приоритет, группа |
-| `problem_list` | Список проблем с фильтрацией по состоянию и группе |
-| `problem_link_incidents` | Привязать инциденты к проблеме для root cause анализа |
+## Available MCP Tools
 
-## Примеры использования
+| Tool | Description |
+|------|-------------|
+| `problem_create` | Create a problem record: description, priority, assignment group |
+| `problem_list` | List problems with filters: state, assignment group |
+| `problem_link_incidents` | Link incidents to a problem for root cause analysis |
+
+## Example Prompts
 
 ```
-> Создай проблему для повторяющихся отключений VPN в хайдарабадском офисе
-> Привяжи INC001111, INC001122, INC001133 к проблеме PRB0000456
-> Какая корневая причина у PRB0000456?
-> Покажи все открытые проблемы, назначенные на Network-команду
+> Create a problem for recurring VPN disconnection issues at the Hyderabad site
+> Link INC001111, INC001122, INC001133 to problem PRB0000456
+> What root cause is documented for PRB0000456?
+> Show all open problems assigned to the Network team
 ```
 
-## Ключевые поля
+## Key Fields
 
-- `number` — номер (PRB...)
+- `number` — problem number (PRB...)
 - `state` — 1=Open, 2=In Progress, 3=Resolved, 4=Closed
-- `problem_id` на инциденте — связка инцидент → проблема
+- `problem_id` on incident — incident → problem linkage
 
 ---
 
-*Автор: Vlady | Лицензия: AGPL-3.0 | 2026*
+*Author: Vlady | License: AGPL-3.0 | 2026*
