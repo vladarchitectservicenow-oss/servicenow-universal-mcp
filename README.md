@@ -5,6 +5,9 @@
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-blue.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-green.svg)](https://www.python.org/)
 [![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-purple.svg)](https://modelcontextprotocol.io/)
+[![CI](https://github.com/vladarchitectservicenow-oss/servicenow-universal-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/vladarchitectservicenow-oss/servicenow-universal-mcp/actions)
+[![Coverage](https://codecov.io/gh/vladarchitectservicenow-oss/servicenow-universal-mcp/branch/main/graph/badge.svg)](https://codecov.io/gh/vladarchitectservicenow-oss/servicenow-universal-mcp)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg?logo=docker)](https://hub.docker.com/)
 
 A universal MCP server that turns **ServiceNow** into a conversational interface for **any LLM**: OpenAI GPT-4o, Anthropic Claude, DeepSeek, Ollama (local models), OpenRouter, and any OpenAI-compatible API.
 
@@ -27,7 +30,7 @@ Problem: that solution is **locked to Claude Desktop**.
 | OpenRouter (150+ models) | ❌ | ✅ |
 | Any OpenAI-compatible API | ❌ | ✅ |
 | STDIO mode | ✅ | ✅ |
-| HTTP/SSE mode | ❌ | ✅ |
+| HTTP mode | ❌ | ✅ |
 | ServiceNow modules covered | ~5 | **11** |
 
 ---
@@ -83,7 +86,7 @@ The server **auto-discovers** which provider is available. Set one, skip the res
 sn-mcp --stdio
 
 # HTTP mode (web clients, Open WebUI, custom frontends)
-sn-mcp --sse --port 8000
+sn-mcp --http --port 8000
 ```
 
 ### 4. Use
@@ -134,8 +137,8 @@ sn-mcp --help
 
 # Run modes
 sn-mcp --stdio              # STDIO — Claude Desktop, Continue, Cline
-sn-mcp --sse                # HTTP SSE on port 8000
-sn-mcp --sse --port 9090    # Custom port
+sn-mcp --http               # HTTP on port 8000
+sn-mcp --http --port 9090   # Custom port
 sn-mcp --stdio --verbose    # Debug mode
 
 # Direct chat (bypass MCP protocol)

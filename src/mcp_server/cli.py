@@ -17,9 +17,9 @@ def main():
     parser = argparse.ArgumentParser(
         description="ServiceNow Universal MCP Server — LLM-agnostic",
     )
-    parser.add_argument("--port", type=int, default=8000, help="MCP server port (default: 8000)")
-    parser.add_argument("--stdio", action="store_true", help="STDIO mode (for Claude Desktop)")
-    parser.add_argument("--sse", action="store_true", help="SSE mode (HTTP)")
+    parser.add_argument("--stdio", action="store_true", help="STDIO mode (for MCP clients)")
+    parser.add_argument("--http", action="store_true", help="HTTP mode (JSON-RPC over HTTP)")
+    parser.add_argument("--port", type=int, default=8000, help="HTTP server port (default: 8000)")
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose logging")
     args = parser.parse_args()
 
@@ -41,7 +41,7 @@ def main():
     log = logging.getLogger(__name__)
     log.info("LLM: %s / %s", config.llm.provider, config.llm.model)
     log.info("ServiceNow: %s", config.sn.url)
-    log.info("Mode: %s", "STDIO" if args.stdio else "SSE (HTTP)")
+    log.info("Mode: %s", "STDIO" if args.stdio else "HTTP")
 
     # Build
     sn_client = ServiceNowClient(config.sn)
@@ -51,7 +51,7 @@ def main():
     if args.stdio:
         server.run_stdio()
     else:
-        server.run_sse(port=args.port)
+        server.run_http(port=args.port)
 
 
 if __name__ == "__main__":

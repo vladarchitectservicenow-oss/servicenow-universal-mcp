@@ -22,7 +22,7 @@
 ```
 
 3. Перезапустите Claude Desktop
-4. Claude автоматически обнаружит 30+ инструментов ServiceNow
+4. Claude автоматически обнаружит 26 инструментов ServiceNow
 
 Теперь вы можете писать в Claude:
 - "Create a P1 incident for database outage"

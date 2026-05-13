@@ -7,7 +7,7 @@
 
 Поддерживает два режима:
 - **STDIO** (для Claude Desktop и других MCP-клиентов)
-- **SSE / HTTP** (для веб-клиентов и Open WebUI)
+- **HTTP** (JSON-RPC через HTTP — для веб-клиентов и Open WebUI)
 
 Архитектура:
   ┌─────────────────────────────────────────────┐
@@ -149,15 +149,15 @@ class UniversalMCPServer:
                 sys.stdout.flush()
 
     # ══════════════════════════════════════════════════════════════════════
-    # SSE Mode (HTTP/SSE — для веб-клиентов)
+    # HTTP Mode (JSON-RPC через HTTP — для веб-клиентов)
     # ══════════════════════════════════════════════════════════════════════
 
-    def run_sse(self, port: int = 8000):
-        """Run in HTTP SSE mode — для веб-клиентов и Open WebUI."""
-        log.info(f"Starting MCP server in SSE mode on http://localhost:{port}...")
-        asyncio.run(self._sse_serve(port))
+    def run_http(self, port: int = 8000):
+        """Run in HTTP mode — для веб-клиентов и Open WebUI."""
+        log.info(f"Starting MCP server in HTTP mode on http://localhost:{port}...")
+        asyncio.run(self._http_serve(port))
 
-    async def _sse_serve(self, port: int):
+    async def _http_serve(self, port: int):
         """Простой HTTP-сервер с поддержкой JSON-RPC через POST."""
         import asyncio
 
@@ -207,7 +207,7 @@ class UniversalMCPServer:
             except asyncio.TimeoutError:
                 pass
             except Exception as e:
-                log.exception("SSE handler error")
+                log.exception("HTTP handler error")
                 error_response = json.dumps({
                     "jsonrpc": "2.0",
                     "id": None,

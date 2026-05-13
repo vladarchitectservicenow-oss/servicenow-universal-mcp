@@ -4,14 +4,16 @@
 """Обработчики (handlers) для всех MCP tools.
 
 Каждый handler получает ServiceNowClient + аргументы и возвращает JSON-строку.
+Все аргументы проходят Pydantic-валидацию перед выполнением.
 """
 
 from __future__ import annotations
 
 from typing import Any
 
-from .client import ServiceNowClient
-from .tools import _ok, _err
+from ..client import ServiceNowClient
+from ..tools import _ok, _err
+from ..validation import validate_args
 
 
 class ToolHandlers:
@@ -25,7 +27,10 @@ class ToolHandlers:
         if not handler:
             return _err(f"Unknown tool: {name}")
         try:
+            args = validate_args(name, args)
             return await handler(args)
+        except ValueError as e:
+            return _err(f"Validation error for '{name}': {e}")
         except Exception as e:
             return _err(f"Tool '{name}' failed: {e}")
 
@@ -105,19 +110,41 @@ class ToolHandlers:
 
     async def handle_incident_stats(self, a: dict) -> str:
         group_by = a.get("group_by", "state")
-        # Получаем все инциденты и группируем
-        all_incidents = await self.client.list("incident", fields=["state", "priority", "assignment_group", "category"], limit=200)
-        groups: dict[str, int] = {}
-        for inc in all_incidents:
-            key = str(inc.get(group_by, "unknown"))
-            groups[key] = groups.get(key, 0) + 1
+        limit = int(a.get("limit", 1000))
 
-        # Доп. статистика
-        total = len(all_incidents)
+        # Используем aggregate count для точного total
+        total = await self.client.count("incident")
         overdue = await self.client.count("incident", "active=true^sla_due<now")
+        active = await self.client.count("incident", "active=true")
+
+        # Группировка с пагинацией
+        groups: dict[str, int] = {}
+        offset = 0
+        page_size = 500
+        seen = 0
+        while seen < min(total, limit):
+            page = await self.client.list(
+                "incident",
+                fields=["state", "priority", "assignment_group", "category"],
+                limit=page_size,
+                offset=offset,
+            )
+            if not page:
+                break
+            for inc in page:
+                key = str(inc.get(group_by, "unknown"))
+                groups[key] = groups.get(key, 0) + 1
+            seen += len(page)
+            offset += page_size
+
+        truncated = total > limit
         return _ok(
             total=total,
+            active=active,
             overdue=overdue,
+            sampled=seen,
+            truncated=truncated,
+            note=f"Общий total={total}, сгруппировано {seen} записей" if truncated else None,
             by_field={group_by: groups},
         )
 
@@ -350,20 +377,62 @@ class ToolHandlers:
 
     async def handle_cmdb_health(self, a: dict) -> str:
         check = a.get("check", "all")
-        result = {}
+        result: dict = {}
+
+        total = await self.client.count("cmdb_ci")
+        result["total_cis"] = total
 
         if check in ("duplicates", "all"):
-            # CI с одинаковыми именами
-            total = await self.client.count("cmdb_ci")
-            result["total_cis"] = total
+            # CI с одинаковыми именами (name встречается более 1 раза)
+            all_cis = await self.client.list("cmdb_ci", fields=["name"], limit=5000)
+            name_counts: dict[str, int] = {}
+            for ci in all_cis:
+                n = ci.get("name", "").strip().lower()
+                if n:
+                    name_counts[n] = name_counts.get(n, 0) + 1
+            dup_names = {k: v for k, v in name_counts.items() if v > 1}
+            result["duplicates"] = {
+                "duplicate_name_count": len(dup_names),
+                "affected_ci_count": sum(dup_names.values()),
+                "top_duplicates": sorted(dup_names.items(), key=lambda x: -x[1])[:10],
+            }
 
         if check in ("orphans", "all"):
-            # CI без отношений
-            # (упрощённо — считаем общее количество)
-            result["cmdb_orphans_note"] = "Orphan detection requires CMDB Health plugin. Run cmdb_search with empty query for full CI list."
+            # CI без отношений: получаем все CI и все отношения, находим разницу
+            all_rel_ids: set[str] = set()
+            rels_parent = await self.client.list("cmdb_rel_ci", fields=["parent"], limit=5000)
+            rels_child = await self.client.list("cmdb_rel_ci", fields=["child"], limit=5000)
+            for r in rels_parent:
+                p = r.get("parent", {})
+                if isinstance(p, dict):
+                    all_rel_ids.add(p.get("value", ""))
+                elif p:
+                    all_rel_ids.add(str(p))
+            for r in rels_child:
+                c = r.get("child", {})
+                if isinstance(c, dict):
+                    all_rel_ids.add(c.get("value", ""))
+                elif c:
+                    all_rel_ids.add(str(c))
+
+            orphan_count = total - len(all_rel_ids) if all_rel_ids else total
+            result["orphans"] = {
+                "orphan_count": max(0, orphan_count),
+                "note": "CI that appear in neither parent nor child of cmdb_rel_ci",
+            }
 
         if check in ("stale", "all"):
-            result["cmdb_stale_note"] = "Stale CI detection requires CMDB Health plugin (sys_updated_on < 90 days)."
+            # CI не обновлялись > 90 дней
+            from datetime import datetime, timedelta, timezone
+            cutoff = (datetime.now(timezone.utc) - timedelta(days=90)).strftime("%Y-%m-%d")
+            stale_count = await self.client.count("cmdb_ci", f"sys_updated_on<{cutoff}")
+            stale_pct = round(stale_count / total * 100, 1) if total > 0 else 0
+            result["stale"] = {
+                "stale_count": stale_count,
+                "stale_pct": stale_pct,
+                "cutoff_date": cutoff,
+                "criteria": "sys_updated_on > 90 days ago",
+            }
 
         return _ok(**result)
 
