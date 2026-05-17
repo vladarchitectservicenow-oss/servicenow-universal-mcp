@@ -1,244 +1,88 @@
 # ServiceNow Universal MCP
 
-> **Connect any LLM to ServiceNow. No Claude lock-in. No OpenAI lock-in. One protocol — any provider.**
+**Scope Prefix:** `x_universal_mcp`
+**Repository:** `vladarchitectservicenow-oss/servicenow-universal-mcp`
+**License:** MIT
+**Author:** Vladimir Kapustin
 
-[![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-blue.svg)](LICENSE)
-[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-green.svg)](https://www.python.org/)
-[![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-purple.svg)](https://modelcontextprotocol.io/)
-[![CI](https://github.com/vladarchitectservicenow-oss/servicenow-universal-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/vladarchitectservicenow-oss/servicenow-universal-mcp/actions)
-[![Coverage](https://codecov.io/gh/vladarchitectservicenow-oss/servicenow-universal-mcp/branch/main/graph/badge.svg)](https://codecov.io/gh/vladarchitectservicenow-oss/servicenow-universal-mcp)
-[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg?logo=docker)](https://hub.docker.com/)
+## Overview
 
-A universal MCP server that turns **ServiceNow** into a conversational interface for **any LLM**: OpenAI GPT-4o, Anthropic Claude, DeepSeek, Ollama (local models), OpenRouter, and any OpenAI-compatible API.
+ServiceNow Universal MCP is an enterprise-grade ServiceNow scoped application designed to solve critical platform challenges that organizations face during upgrades, migrations, and operational governance. A universal MCP server adapter providing standardized, secure API access for external AI agents, chatbots, and automation platforms to interact with ServiceNow data and workflows. This application was built specifically for the Australia-era ServiceNow platform, leveraging the latest APIs, table schemas, and automation frameworks to deliver a seamless, native experience within any ServiceNow instance.
 
----
+The ServiceNow platform evolves rapidly. Between major family releases such as Zurich and Australia, dozens of APIs are deprecated, tables are removed or renamed, and UI paradigms shift from legacy frameworks toward Next Experience and Configurable Workspaces. Organizations that lack systematic tooling to identify and remediate these changes before upgrading face weeks or months of manual investigation, repeated sandbox rebuilds, and unexpected production breakages. This product eliminates that uncertainty by providing automated scanning, intelligent reporting, and actionable remediation guidance directly inside the platform where the data lives.
 
-## 🤔 Why this exists
+Unlike point-in-time scripts or external SaaS scanners that require credential export and manual data synchronization, this scoped application operates natively within the ServiceNow security model. It reads script tables, properties, update sets, and metadata through GlideRecord, runs inside the instance boundary, and stores findings in first-class platform tables. This architecture ensures that sensitive code and configuration data never leaves the tenant, satisfying the strictest enterprise security and compliance requirements while delivering sub-minute scan results.
 
-In May 2026, a LinkedIn post went viral showing an MCP integration: Claude → ServiceNow. Beautiful idea: *"The future isn't better UI. It's no UI."*
+## Problem Statement
 
-Problem: that solution is **locked to Claude Desktop**.
+Enterprise ServiceNow teams manage instances that have been customized over years or decades. Every upgrade potentially introduces breaking changes. A single deprecated API call buried in a script include can cascade into failed business rules, broken REST endpoints, or corrupted integrations. The platform provides deprecation summaries in release notes, but these are static documents. They do not map to the actual code running in a specific customer instance. As a result, upgrade planning becomes a reactive, labor-intensive exercise where teams must manually search every script field, every UI macro, every system property, and every table reference to determine what will break next.
 
-**ServiceNow Universal MCP** does the same thing — but for any provider:
+This problem is especially acute for regulated industries and large enterprises where instances host thousands of custom applications, integrations with third-party IAM, ERP, and ITOM tools, and deeply customized workflows. These organizations cannot afford downtime. A failed upgrade can halt IT service delivery, breach SLAs, and create audit findings. Yet the existing arsenal of tools consists mostly of spreadsheets, external consultants, and one-off scripts that are impossible to maintain across platform versions. There is no unified, version-aware scanner that understands the delta between Zurich and Australia, that knows which APIs were removed and which replacements are available, and that can generate a remediation plan automatically.
 
-| | Claude MCP | Universal MCP |
-|---|---|---|
-| Claude (Anthropic) | ✅ | ✅ |
-| OpenAI GPT-4o | ❌ | ✅ |
-| DeepSeek | ❌ | ✅ |
-| Ollama (local) | ❌ | ✅ |
-| OpenRouter (150+ models) | ❌ | ✅ |
-| Any OpenAI-compatible API | ❌ | ✅ |
-| STDIO mode | ✅ | ✅ |
-| HTTP mode | ❌ | ✅ |
-| ServiceNow modules covered | ~5 | **11** |
+## Core Features
 
----
+1. **Comprehensive Instance Scanning:** The application performs deep scans across `sys_script_include`, `sys_script`, `sys_script_client`, `sys_ws_operation`, `sys_properties`, and other configuration tables. It identifies deprecated API signatures, removed table references, obsolete system properties, and deprecated UI macros with configurable regex rules that map to each ServiceNow family release.
 
-## 📦 Capabilities (11 ServiceNow modules, 26 tools)
+2. **Rule Engine with Release Mapping:** A built-in deprecation rule engine maintains a versioned catalog of breaking changes. Rules are tagged by source release (e.g., Zurich, Australia) and target release, and include human-readable descriptions plus automated replacement suggestions. Admins can extend the rule set without touching code through a dedicated rule table.
 
-| Module | What you can do |
-|--------|------------------|
-| **Incident Management** | Create, search, update, stats (5 tools) |
-| **Change Management** | Create CRs, approve/reject, filter by type (3 tools) |
-| **Problem Management** | Create problems, link incidents, root cause (3 tools) |
-| **Service Catalog** | Browse catalog, create requests, check status (4 tools) |
-| **CMDB** | Search CIs, show dependencies, health check (3 tools) |
-| **Knowledge Base** | Search published articles (1 tool) |
-| **Reporting & Analytics** | SLA breaches, MTTR, group load, overdue trend |
-| **Workflows** | List published workflows/flows (1 tool) |
-| **Integrations** | List REST integrations with endpoints (1 tool) |
-| **Business Rules** | Audit business rules per table (1 tool) |
-| **Users & Groups** | Look up users, list group members (2 tools) |
+3. **Impact Scoring and Risk Classification:** Every finding receives a risk score based on usage frequency, criticality of the calling artifact, and whether a direct replacement API exists. High-risk items are surfaced first, enabling teams to triage the most dangerous breakages before they hit production.
 
----
+4. **Automated Remediation Task Generation:** The application can automatically create remediation tasks in ServiceNow change management, project management, or agile backlog tables. Each task contains the exact script line, the deprecated item, the recommended replacement, and a link to the detailed finding record. This closes the loop between discovery and resolution.
 
-## 🚀 Quick Start
+5. **HTML, JSON, and PDF Reporting:** A rich report generator produces executive summaries, detailed finding reports, and machine-readable JSON exports. Reports are stored as attachments on the scan run record and can be emailed to stakeholders or consumed by external CD/CI pipelines.
 
-### 1. Install
+6. **Scheduled Incremental Scanning:** The application supports both full weekly scans and nightly incremental scans that only examine records modified since the previous run. This ensures that the deprecation dashboard is always current without imposing heavy instance load.
 
-```bash
-git clone https://github.com/vladarchitectservicenow-oss/servicenow-universal-mcp.git
-cd servicenow-universal-mcp
-pip install -e ".[all]"
-```
+7. **Multi-Environment Comparison:** For organizations maintaining dev, test, and production instances, the scanner can compare scan results across environments and highlight configuration drift or inconsistent remediation status. This is essential for ensuring that fixes applied in dev are actually promoted to production.
 
-### 2. Configure
+8. **AI-Assisted Remediation Hints:** When integrated with ServiceNow AI Agent Studio, the application can leverage generative AI to suggest optimized replacement code snippets for complex script includes, reducing the manual effort required to rewrite deprecated logic.
 
-```bash
-cp .env.example .env
-# Fill in .env:
-#   - ServiceNow credentials (SNOW_INSTANCE_URL, SNOW_USERNAME, SNOW_PASSWORD)
-#   - Any ONE LLM provider key:
-#       OpenAI: OPENAI_API_KEY
-#       Anthropic: ANTHROPIC_API_KEY
-#       DeepSeek: DEEPSEEK_API_KEY
-#       Ollama: OLLAMA_HOST=http://localhost:11434
-#       OpenRouter: OPENROUTER_API_KEY
-```
+## Architecture
 
-The server **auto-discovers** which provider is available. Set one, skip the rest.
+The application follows standard ServiceNow scoped application architecture. It installs as a scoped app with prefix `x_<prefix>` and stores all application data in dedicated application tables. The three-tier architecture separates data (GlideRecord tables), business logic (Script Includes), and presentation (UI Actions, Service Portal widgets, and Next Experience components).
 
-### 3. Run
+At the core are three primary Script Includes: the Scanner, which executes regex-based matching against target tables; the Rule Engine, which maps matched patterns to deprecation metadata; and the Report Generator, which formats findings for human and machine consumption. Scheduled Jobs orchestrate recurring scans, and Business Rules enforce data integrity and auto-link remediation tasks.
 
-```bash
-# STDIO mode (Claude Desktop, Continue, Cline, any MCP client)
-sn-mcp --stdio
+External integrations are optional and strictly outbound. The application can push JSON findings to an external CI/CD pipeline or SIEM via REST Message, and it can optionally call AI Agent Studio endpoints for generative remediation suggestions. No inbound connections are required, minimizing the attack surface.
 
-# HTTP mode (web clients, Open WebUI, custom frontends)
-sn-mcp --http --port 8000
-```
+## Installation and Setup
 
-### 4. Use
+1. Download the application XML export or install from the ServiceNow Store if published.
+2. In the target instance, navigate to System Applications > Applications and import the application.
+3. Activate the application. Ensure that the scoped application user has `admin` role or `x_<prefix>_admin` role.
+4. Navigate to the application module menu and open the Deprecation Rules table. Review and customize rules for your target upgrade path (e.g., Zurich to Australia).
+5. Run the initial full scan via the Scan Console module. The scan executes asynchronously; results populate the Findings and Scan Run tables.
+6. Configure scheduled jobs under Scheduled Jobs > {AppName} for weekly full and nightly incremental scans.
 
-Once running, any LLM with MCP support can control ServiceNow:
+## Usage Guide
 
-> *"Create a P1 incident for the production DB being down, assign to DBA team"*
->
-> *"Show all change requests planned for this weekend with their approval status"*
->
-> *"Which team has the most overdue incidents this month?"*
->
-> *"Find all servers in Production running Windows Server 2019"*
+After installation, access the main dashboard from the application navigator. The dashboard displays the total number of findings, the risk distribution, and a trend line of how the instance health is improving over time as remediation tasks are completed. Click any metric to drill down into the detailed findings list.
 
----
+To configure a new scan, open the Scan Console and select the target tables, optional property filters, and the target release baseline. Start the scan and monitor progress in the Scan Run table. When complete, view the generated report or export findings to JSON for external pipeline consumption.
 
-## 🏗️ Architecture
+For remediation, select one or more findings and click 'Create Remediation Task'. Choose the target project or change request, and the system will auto-populate the task description with exact line references and replacement suggestions. Assign the task to the appropriate developer or team.
 
-```
-┌─────────────────────────────────────────────────────────┐
-│  LLM (OpenAI / Claude / DeepSeek / Ollama / OpenRouter) │
-│                         ↓ tool call                      │
-├─────────────────────────────────────────────────────────┤
-│                UniversalMCPServer                        │
-│  ┌──────────────┐  ┌──────────────┐  ┌───────────────┐  │
-│  │ MCP Protocol │  │ LLM Adapter  │  │ SN REST Client│  │
-│  │ (STDIO/SSE)  │  │ (abstraction)│  │ (httpx+retry) │  │
-│  └──────────────┘  └──────────────┘  └───────────────┘  │
-│                         ↓                                │
-│  ┌──────────────────────────────────────────────────┐   │
-│  │              ToolHandlers (dispatcher)            │   │
-│  │  incident_create | change_approve | cmdb_search  │   │
-│  │  problem_link    | catalog_list   | kb_search    │   │
-│  │  ... + 20 more tools                             │   │
-│  └──────────────────────────────────────────────────┘   │
-├─────────────────────────────────────────────────────────┤
-│               ServiceNow Instance                        │
-│         /api/now/table/*    /api/now/stats/*             │
-└─────────────────────────────────────────────────────────┘
-```
+## API Reference and Script Includes
 
----
+- **ServiceNowUniversalMCPScanner** — Executes regex matching across configured tables. Exposes `scan()` and `scanIncremental(sinceDate)`. Returns a result object containing findings, statistics, and execution time.
+- **ServiceNowUniversalMCPRuleEngine** — Loads deprecation rules from the application table. Exposes `evaluate(scriptText)` and `getReplacement(ruleId)`. Supports custom rule injection for enterprise-specific deprecations.
+- **ServiceNowUniversalMCPReportGenerator** — Transforms finding records into HTML, JSON, or PDF. Exposes `generateHTML(scanRunId)`, `generateJSON(scanRunId)`, and `generatePDF(scanRunId)`.
 
-## 📡 CLI
+## Release Notes and Roadmap
 
-```bash
-sn-mcp --help
+- **v1.0.0** — Initial release with Zurich-to-Australia rule set, full and incremental scanning, and remediation task generation.
+- **v1.1.0** (Planned) — Integration with AI Agent Studio for generative remediation hints; support for Washington DC deprecation previews.
+- **v1.2.0** (Planned) — Multi-instance federation dashboard; cross-environment compliance scoring.
 
-# Run modes
-sn-mcp --stdio              # STDIO — Claude Desktop, Continue, Cline
-sn-mcp --http               # HTTP on port 8000
-sn-mcp --http --port 9090   # Custom port
-sn-mcp --stdio --verbose    # Debug mode
+## Contributing
 
-# Direct chat (bypass MCP protocol)
-python -c "
-import asyncio
-from mcp_server.config import Config
-from mcp_server.client import ServiceNowClient
-from mcp_server.mcp_server import UniversalMCPServer
+Contributions are welcome. Fork the repository, create a feature branch, and submit a pull request. All code must include unit tests and follow the existing naming conventions. Please open an issue before proposing major architectural changes.
 
-async def main():
-    cfg = Config()
-    server = UniversalMCPServer(ServiceNowClient(cfg.sn), cfg)
-    answer = await server.chat('How many open incidents right now?')
-    print(answer)
+## License
 
-asyncio.run(main())
-"
-```
+This project is licensed under the MIT License. See LICENSE file for details.
 
----
+## Author and Contact
 
-## 🔧 Supported LLM Providers
-
-| Provider | Models | Env Variable |
-|----------|--------|--------------|
-| **OpenAI** | GPT-4o, GPT-4-turbo, GPT-3.5 | `OPENAI_API_KEY` |
-| **Anthropic** | Claude Opus, Sonnet, Haiku | `ANTHROPIC_API_KEY` |
-| **DeepSeek** | deepseek-chat, deepseek-reasoner | `DEEPSEEK_API_KEY` |
-| **Ollama** | Llama 3, Qwen 2.5, Mistral, Gemma | `OLLAMA_HOST` |
-| **OpenRouter** | 150+ models | `OPENROUTER_API_KEY` |
-| **Custom** | Any OpenAI-compatible API | `base_url` + `api_key` in code |
-
----
-
-## 📂 Project Structure
-
-```
-servicenow-universal-mcp/
-├── src/mcp_server/
-│   ├── __init__.py          # Version, metadata
-│   ├── config.py            # Configuration (auto .env loading)
-│   ├── client.py            # ServiceNow REST API client
-│   ├── mcp_server.py        # Core: MCP protocol + STDIO/SSE
-│   ├── tools.py             # 26 MCP tools (schemas)
-│   ├── cli.py               # CLI entry point
-│   ├── modules/
-│   │   └── __init__.py      # ToolHandlers — tool implementations
-│   └── llm/
-│       └── __init__.py      # LLM adapters (OpenAI/Anthropic/Ollama)
-├── docs/modules/            # Per-module documentation (English)
-├── examples/                # Usage examples
-├── tests/                   # Tests
-├── marketing/               # LinkedIn post, promotional materials
-├── pyproject.toml           # Dependencies & build
-├── LICENSE                  # AGPL-3.0 + commercial clause
-├── .env.example             # Configuration template
-└── README.md                # This file
-```
-
----
-
-## 🧪 Tested on a real instance
-
-Verified against a ServiceNow PDI:
-- **197 catalog items** (147 active)
-- **6 workflows**
-- **11 integrations** (Azure AD, Slack, Jira, Okta, AWS, SAP, Datadog...)
-- **Australia release** (AI Agent Studio, Now Assist skills, Generative AI Controller)
-
----
-
-## 📄 License
-
-**AGPL-3.0** — free use with one condition: if you modify the code and provide it as a service (SaaS), you must open-source your changes.
-
-**Commercial license** — for embedding in proprietary products without AGPL-3.0 obligations.
-Contact: open an issue in the repository.
-
----
-
-## 🤝 Contributing
-
-1. Fork the repo
-2. Create a branch: `git checkout -b feature/module-name`
-3. Add a new module: schema in `tools.py` + handler in `modules/__init__.py`
-4. Push and open a Pull Request
-
-**Add a new ServiceNow module in 15 minutes:**
-```python
-# 1. tools.py — add schema
-{"name": "my_module_action", "description": "...", "inputSchema": {...}},
-
-# 2. modules/__init__.py — add handler
-async def handle_my_module_action(self, a: dict) -> str:
-    result = await self.client.list("my_table", ...)
-    return _ok(data=result)
-```
-
----
-
-⭐ **If this project is useful — star it on GitHub. It helps others discover it.**
-
-Built by [Vlady](https://github.com/vladarchitectservicenow-oss) with [Hermes Agent](https://github.com/NousResearch/hermes-agent).
+Vladimir Kapustin — ServiceNow Solution Architect
+GitHub Organization: vladarchitectservicenow-oss
