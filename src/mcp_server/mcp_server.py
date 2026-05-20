@@ -87,11 +87,7 @@ class UniversalMCPServer:
         name = params.get("name", "")
         arguments = params.get("arguments", {})
         result_json = await self.handlers.dispatch(name, arguments)
-        return {
-            "content": [
-                {"type": "text", "text": result_json}
-            ]
-        }
+        return {"content": [{"type": "text", "text": result_json}]}
 
     # ══════════════════════════════════════════════════════════════════════
     # STDIO Mode (Claude Desktop, другие MCP-клиенты)
@@ -200,25 +196,25 @@ class UniversalMCPServer:
                     f"Content-Length: {len(response_text.encode('utf-8'))}\r\n"
                     f"Access-Control-Allow-Origin: *\r\n"
                     f"Connection: close\r\n\r\n"
-                    f"{response_text}"
-                    .encode("utf-8")
+                    f"{response_text}".encode("utf-8")
                 )
                 await writer.drain()
             except asyncio.TimeoutError:
                 pass
             except Exception as e:
                 log.exception("HTTP handler error")
-                error_response = json.dumps({
-                    "jsonrpc": "2.0",
-                    "id": None,
-                    "error": {"code": -32603, "message": str(e)},
-                })
+                error_response = json.dumps(
+                    {
+                        "jsonrpc": "2.0",
+                        "id": None,
+                        "error": {"code": -32603, "message": str(e)},
+                    }
+                )
                 writer.write(
                     f"HTTP/1.1 500 Internal Server Error\r\n"
                     f"Content-Type: application/json\r\n"
                     f"Content-Length: {len(error_response)}\r\n\r\n"
-                    f"{error_response}"
-                    .encode("utf-8")
+                    f"{error_response}".encode("utf-8")
                 )
                 await writer.drain()
             finally:
@@ -241,7 +237,7 @@ class UniversalMCPServer:
         from .llm import LLMProvider
 
         llm = LLMProvider(self.config.llm)
-        messages = [
+        messages: list[dict[str, Any]] = [
             {
                 "role": "system",
                 "content": self._system_prompt(),
@@ -260,23 +256,29 @@ class UniversalMCPServer:
             # Выполняем tool calls
             for tc in tool_calls:
                 result_json = await self.handlers.dispatch(tc["name"], tc["arguments"])
-                messages.append({
-                    "role": "assistant",
-                    "content": None,
-                    "tool_calls": [{
-                        "id": tc["id"],
-                        "type": "function",
-                        "function": {
-                            "name": tc["name"],
-                            "arguments": json.dumps(tc["arguments"]),
-                        },
-                    }],
-                })
-                messages.append({
-                    "role": "tool",
-                    "tool_call_id": tc["id"],
-                    "content": result_json,
-                })
+                messages.append(
+                    {
+                        "role": "assistant",
+                        "content": None,
+                        "tool_calls": [
+                            {
+                                "id": tc["id"],
+                                "type": "function",
+                                "function": {
+                                    "name": tc["name"],
+                                    "arguments": json.dumps(tc["arguments"]),
+                                },
+                            }
+                        ],
+                    }
+                )
+                messages.append(
+                    {
+                        "role": "tool",
+                        "tool_call_id": tc["id"],
+                        "content": result_json,
+                    }
+                )
 
         return "Превышен лимит tool-call итераций."
 

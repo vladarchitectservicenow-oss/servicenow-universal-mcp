@@ -26,12 +26,11 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from .client import ServiceNowClient
-
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Helpers
 # ═══════════════════════════════════════════════════════════════════════════
+
 
 def _j(obj: Any) -> str:
     """Serialize to JSON string (MCP requirement)."""
@@ -58,12 +57,30 @@ TOOLS = [
         "inputSchema": {
             "type": "object",
             "properties": {
-                "short_description": {"type": "string", "description": "Краткое описание инцидента"},
-                "priority": {"type": "integer", "description": "Приоритет: 1 (Critical), 2 (High), 3 (Moderate), 4 (Low), 5 (Planning)"},
-                "category": {"type": "string", "description": "Категория (например: Hardware, Software, Network, Database)"},
-                "assignment_group": {"type": "string", "description": "Группа назначения (название группы)"},
-                "caller_id": {"type": "string", "description": "Email пользователя, сообщившего об инциденте (опционально)"},
-                "description": {"type": "string", "description": "Полное описание инцидента (опционально)"},
+                "short_description": {
+                    "type": "string",
+                    "description": "Краткое описание инцидента",
+                },
+                "priority": {
+                    "type": "integer",
+                    "description": "Приоритет: 1 (Critical), 2 (High), 3 (Moderate), 4 (Low), 5 (Planning)",
+                },
+                "category": {
+                    "type": "string",
+                    "description": "Категория (например: Hardware, Software, Network, Database)",
+                },
+                "assignment_group": {
+                    "type": "string",
+                    "description": "Группа назначения (название группы)",
+                },
+                "caller_id": {
+                    "type": "string",
+                    "description": "Email пользователя, сообщившего об инциденте (опционально)",
+                },
+                "description": {
+                    "type": "string",
+                    "description": "Полное описание инцидента (опционально)",
+                },
             },
             "required": ["short_description"],
         },
@@ -74,11 +91,23 @@ TOOLS = [
         "inputSchema": {
             "type": "object",
             "properties": {
-                "state": {"type": "string", "description": "Состояние: 1=New, 2=In Progress, 3=On Hold, 6=Resolved, 7=Closed"},
+                "state": {
+                    "type": "string",
+                    "description": "Состояние: 1=New, 2=In Progress, 3=On Hold, 6=Resolved, 7=Closed",
+                },
                 "priority": {"type": "string", "description": "Приоритет: 1-5"},
-                "assignment_group": {"type": "string", "description": "Фильтр по группе назначения"},
-                "assigned_to": {"type": "string", "description": "Фильтр по исполнителю"},
-                "limit": {"type": "integer", "description": "Максимум записей (по умолчанию 20)"},
+                "assignment_group": {
+                    "type": "string",
+                    "description": "Фильтр по группе назначения",
+                },
+                "assigned_to": {
+                    "type": "string",
+                    "description": "Фильтр по исполнителю",
+                },
+                "limit": {
+                    "type": "integer",
+                    "description": "Максимум записей (по умолчанию 20)",
+                },
             },
         },
     },
@@ -88,7 +117,10 @@ TOOLS = [
         "inputSchema": {
             "type": "object",
             "properties": {
-                "number": {"type": "string", "description": "Номер инцидента (например, INC0012345)"},
+                "number": {
+                    "type": "string",
+                    "description": "Номер инцидента (например, INC0012345)",
+                },
             },
             "required": ["number"],
         },
@@ -99,11 +131,23 @@ TOOLS = [
         "inputSchema": {
             "type": "object",
             "properties": {
-                "number": {"type": "string", "description": "Номер инцидента (например, INC0012345)"},
-                "state": {"type": "string", "description": "Новое состояние: 1=New, 2=In Progress, 3=On Hold, 6=Resolved, 7=Closed"},
+                "number": {
+                    "type": "string",
+                    "description": "Номер инцидента (например, INC0012345)",
+                },
+                "state": {
+                    "type": "string",
+                    "description": "Новое состояние: 1=New, 2=In Progress, 3=On Hold, 6=Resolved, 7=Closed",
+                },
                 "work_notes": {"type": "string", "description": "Рабочие заметки"},
-                "comments": {"type": "string", "description": "Комментарий для пользователя"},
-                "assignment_group": {"type": "string", "description": "Новая группа назначения"},
+                "comments": {
+                    "type": "string",
+                    "description": "Комментарий для пользователя",
+                },
+                "assignment_group": {
+                    "type": "string",
+                    "description": "Новая группа назначения",
+                },
             },
             "required": ["number"],
         },
@@ -114,11 +158,13 @@ TOOLS = [
         "inputSchema": {
             "type": "object",
             "properties": {
-                "group_by": {"type": "string", "description": "Группировка: state, priority, assignment_group, category"},
+                "group_by": {
+                    "type": "string",
+                    "description": "Группировка: state, priority, assignment_group, category",
+                },
             },
         },
     },
-
     # ── CHANGE MANAGEMENT ────────────────────────────────────────────────
     {
         "name": "change_list",
@@ -126,11 +172,23 @@ TOOLS = [
         "inputSchema": {
             "type": "object",
             "properties": {
-                "type": {"type": "string", "description": "Тип изменения: normal, standard, emergency"},
-                "approval": {"type": "string", "description": "Статус утверждения: requested, approved, rejected"},
+                "type": {
+                    "type": "string",
+                    "description": "Тип изменения: normal, standard, emergency",
+                },
+                "approval": {
+                    "type": "string",
+                    "description": "Статус утверждения: requested, approved, rejected",
+                },
                 "state": {"type": "string", "description": "Состояние (числовой код)"},
-                "planned_start": {"type": "string", "description": "Плановое начало (например, 'this weekend')"},
-                "limit": {"type": "integer", "description": "Максимум записей (по умолчанию 20)"},
+                "planned_start": {
+                    "type": "string",
+                    "description": "Плановое начало (например, 'this weekend')",
+                },
+                "limit": {
+                    "type": "integer",
+                    "description": "Максимум записей (по умолчанию 20)",
+                },
             },
         },
     },
@@ -140,13 +198,34 @@ TOOLS = [
         "inputSchema": {
             "type": "object",
             "properties": {
-                "short_description": {"type": "string", "description": "Краткое описание изменения"},
-                "type": {"type": "string", "description": "Тип: normal, standard, emergency"},
-                "risk": {"type": "string", "description": "Уровень риска: high, medium, low"},
-                "justification": {"type": "string", "description": "Обоснование изменения"},
-                "implementation_plan": {"type": "string", "description": "План реализации"},
-                "planned_start": {"type": "string", "description": "Дата/время планового начала (ISO 8601)"},
-                "planned_end": {"type": "string", "description": "Дата/время планового окончания (ISO 8601)"},
+                "short_description": {
+                    "type": "string",
+                    "description": "Краткое описание изменения",
+                },
+                "type": {
+                    "type": "string",
+                    "description": "Тип: normal, standard, emergency",
+                },
+                "risk": {
+                    "type": "string",
+                    "description": "Уровень риска: high, medium, low",
+                },
+                "justification": {
+                    "type": "string",
+                    "description": "Обоснование изменения",
+                },
+                "implementation_plan": {
+                    "type": "string",
+                    "description": "План реализации",
+                },
+                "planned_start": {
+                    "type": "string",
+                    "description": "Дата/время планового начала (ISO 8601)",
+                },
+                "planned_end": {
+                    "type": "string",
+                    "description": "Дата/время планового окончания (ISO 8601)",
+                },
             },
             "required": ["short_description"],
         },
@@ -157,14 +236,19 @@ TOOLS = [
         "inputSchema": {
             "type": "object",
             "properties": {
-                "number": {"type": "string", "description": "Номер запроса на изменение (CHG...)"},
-                "approved": {"type": "boolean", "description": "True = утвердить, False = отклонить"},
+                "number": {
+                    "type": "string",
+                    "description": "Номер запроса на изменение (CHG...)",
+                },
+                "approved": {
+                    "type": "boolean",
+                    "description": "True = утвердить, False = отклонить",
+                },
                 "comments": {"type": "string", "description": "Комментарий к решению"},
             },
             "required": ["number", "approved"],
         },
     },
-
     # ── PROBLEM MANAGEMENT ───────────────────────────────────────────────
     {
         "name": "problem_create",
@@ -172,9 +256,15 @@ TOOLS = [
         "inputSchema": {
             "type": "object",
             "properties": {
-                "short_description": {"type": "string", "description": "Краткое описание проблемы"},
+                "short_description": {
+                    "type": "string",
+                    "description": "Краткое описание проблемы",
+                },
                 "description": {"type": "string", "description": "Полное описание"},
-                "assignment_group": {"type": "string", "description": "Группа назначения"},
+                "assignment_group": {
+                    "type": "string",
+                    "description": "Группа назначения",
+                },
                 "priority": {"type": "integer", "description": "Приоритет 1-5"},
             },
             "required": ["short_description"],
@@ -186,9 +276,18 @@ TOOLS = [
         "inputSchema": {
             "type": "object",
             "properties": {
-                "state": {"type": "string", "description": "Состояние: 1=Open, 2=In Progress, 3=Resolved, 4=Closed"},
-                "assignment_group": {"type": "string", "description": "Фильтр по группе"},
-                "limit": {"type": "integer", "description": "Максимум записей (по умолчанию 20)"},
+                "state": {
+                    "type": "string",
+                    "description": "Состояние: 1=Open, 2=In Progress, 3=Resolved, 4=Closed",
+                },
+                "assignment_group": {
+                    "type": "string",
+                    "description": "Фильтр по группе",
+                },
+                "limit": {
+                    "type": "integer",
+                    "description": "Максимум записей (по умолчанию 20)",
+                },
             },
         },
     },
@@ -198,17 +297,19 @@ TOOLS = [
         "inputSchema": {
             "type": "object",
             "properties": {
-                "problem_number": {"type": "string", "description": "Номер проблемы (PRB...)"},
+                "problem_number": {
+                    "type": "string",
+                    "description": "Номер проблемы (PRB...)",
+                },
                 "incident_numbers": {
                     "type": "array",
                     "items": {"type": "string"},
-                    "description": "Список номеров инцидентов (например, [\"INC0010001\", \"INC0010002\"])",
+                    "description": 'Список номеров инцидентов (например, ["INC0010001", "INC0010002"])',
                 },
             },
             "required": ["problem_number", "incident_numbers"],
         },
     },
-
     # ── SERVICE CATALOG & REQUESTS ───────────────────────────────────────
     {
         "name": "catalog_list",
@@ -216,9 +317,15 @@ TOOLS = [
         "inputSchema": {
             "type": "object",
             "properties": {
-                "search": {"type": "string", "description": "Поиск по названию каталога"},
+                "search": {
+                    "type": "string",
+                    "description": "Поиск по названию каталога",
+                },
                 "category": {"type": "string", "description": "Фильтр по категории"},
-                "limit": {"type": "integer", "description": "Максимум записей (по умолчанию 20)"},
+                "limit": {
+                    "type": "integer",
+                    "description": "Максимум записей (по умолчанию 20)",
+                },
             },
         },
     },
@@ -228,10 +335,19 @@ TOOLS = [
         "inputSchema": {
             "type": "object",
             "properties": {
-                "catalog_item_name": {"type": "string", "description": "Название элемента каталога (например, 'Laptop Request')"},
-                "requested_for": {"type": "string", "description": "Email пользователя, для которого создаётся запрос"},
+                "catalog_item_name": {
+                    "type": "string",
+                    "description": "Название элемента каталога (например, 'Laptop Request')",
+                },
+                "requested_for": {
+                    "type": "string",
+                    "description": "Email пользователя, для которого создаётся запрос",
+                },
                 "quantity": {"type": "integer", "description": "Количество"},
-                "variables": {"type": "object", "description": "Дополнительные переменные запроса (опционально)"},
+                "variables": {
+                    "type": "object",
+                    "description": "Дополнительные переменные запроса (опционально)",
+                },
             },
             "required": ["catalog_item_name", "requested_for"],
         },
@@ -242,7 +358,10 @@ TOOLS = [
         "inputSchema": {
             "type": "object",
             "properties": {
-                "number": {"type": "string", "description": "Номер запроса (REQ..., RITM... или SCTASK...)"},
+                "number": {
+                    "type": "string",
+                    "description": "Номер запроса (REQ..., RITM... или SCTASK...)",
+                },
             },
             "required": ["number"],
         },
@@ -253,11 +372,13 @@ TOOLS = [
         "inputSchema": {
             "type": "object",
             "properties": {
-                "approver": {"type": "string", "description": "Email утверждающего (опционально — если не указан, покажет все)"},
+                "approver": {
+                    "type": "string",
+                    "description": "Email утверждающего (опционально — если не указан, покажет все)",
+                },
             },
         },
     },
-
     # ── CMDB ─────────────────────────────────────────────────────────────
     {
         "name": "cmdb_search",
@@ -265,10 +386,22 @@ TOOLS = [
         "inputSchema": {
             "type": "object",
             "properties": {
-                "name": {"type": "string", "description": "Поиск по названию (частичное совпадение)"},
-                "class": {"type": "string", "description": "Класс CI (например, 'Server', 'Application', 'Database')"},
-                "environment": {"type": "string", "description": "Окружение: Production, Test, Development, Staging"},
-                "limit": {"type": "integer", "description": "Максимум записей (по умолчанию 30)"},
+                "name": {
+                    "type": "string",
+                    "description": "Поиск по названию (частичное совпадение)",
+                },
+                "class": {
+                    "type": "string",
+                    "description": "Класс CI (например, 'Server', 'Application', 'Database')",
+                },
+                "environment": {
+                    "type": "string",
+                    "description": "Окружение: Production, Test, Development, Staging",
+                },
+                "limit": {
+                    "type": "integer",
+                    "description": "Максимум записей (по умолчанию 30)",
+                },
             },
         },
     },
@@ -278,7 +411,10 @@ TOOLS = [
         "inputSchema": {
             "type": "object",
             "properties": {
-                "ci_name": {"type": "string", "description": "Название CI (например, 'PROD-DB-01')"},
+                "ci_name": {
+                    "type": "string",
+                    "description": "Название CI (например, 'PROD-DB-01')",
+                },
             },
             "required": ["ci_name"],
         },
@@ -289,11 +425,13 @@ TOOLS = [
         "inputSchema": {
             "type": "object",
             "properties": {
-                "check": {"type": "string", "description": "Что проверять: duplicates, orphans, stale, all (по умолчанию all)"},
+                "check": {
+                    "type": "string",
+                    "description": "Что проверять: duplicates, orphans, stale, all (по умолчанию all)",
+                },
             },
         },
     },
-
     # ── KNOWLEDGE BASE ───────────────────────────────────────────────────
     {
         "name": "kb_search",
@@ -303,12 +441,14 @@ TOOLS = [
             "properties": {
                 "query": {"type": "string", "description": "Поисковый запрос"},
                 "category": {"type": "string", "description": "Категория KB"},
-                "limit": {"type": "integer", "description": "Максимум статей (по умолчанию 10)"},
+                "limit": {
+                    "type": "integer",
+                    "description": "Максимум статей (по умолчанию 10)",
+                },
             },
             "required": ["query"],
         },
     },
-
     # ── REPORTING & ANALYTICS ────────────────────────────────────────────
     {
         "name": "report_performance",
@@ -316,14 +456,22 @@ TOOLS = [
         "inputSchema": {
             "type": "object",
             "properties": {
-                "metric": {"type": "string", "description": "Метрика: sla_breach, mttr, group_load, overdue_trend"},
-                "period": {"type": "string", "description": "Период: today, this_week, this_month, last_month"},
-                "assignment_group": {"type": "string", "description": "Фильтр по группе (опционально)"},
+                "metric": {
+                    "type": "string",
+                    "description": "Метрика: sla_breach, mttr, group_load, overdue_trend",
+                },
+                "period": {
+                    "type": "string",
+                    "description": "Период: today, this_week, this_month, last_month",
+                },
+                "assignment_group": {
+                    "type": "string",
+                    "description": "Фильтр по группе (опционально)",
+                },
             },
             "required": ["metric"],
         },
     },
-
     # ── WORKFLOW & FLOW DESIGNER ─────────────────────────────────────────
     {
         "name": "workflow_list",
@@ -332,11 +480,13 @@ TOOLS = [
             "type": "object",
             "properties": {
                 "name": {"type": "string", "description": "Поиск по названию workflow"},
-                "limit": {"type": "integer", "description": "Максимум записей (по умолчанию 20)"},
+                "limit": {
+                    "type": "integer",
+                    "description": "Максимум записей (по умолчанию 20)",
+                },
             },
         },
     },
-
     # ── INTEGRATIONS ─────────────────────────────────────────────────────
     {
         "name": "integration_list",
@@ -344,12 +494,17 @@ TOOLS = [
         "inputSchema": {
             "type": "object",
             "properties": {
-                "name": {"type": "string", "description": "Поиск по названию интеграции"},
-                "limit": {"type": "integer", "description": "Максимум записей (по умолчанию 20)"},
+                "name": {
+                    "type": "string",
+                    "description": "Поиск по названию интеграции",
+                },
+                "limit": {
+                    "type": "integer",
+                    "description": "Максимум записей (по умолчанию 20)",
+                },
             },
         },
     },
-
     # ── BUSINESS RULES & SCRIPTS ─────────────────────────────────────────
     {
         "name": "business_rule_list",
@@ -357,13 +512,21 @@ TOOLS = [
         "inputSchema": {
             "type": "object",
             "properties": {
-                "table": {"type": "string", "description": "Имя таблицы (например, incident, change_request, sc_req_item)"},
-                "active": {"type": "boolean", "description": "Только активные (по умолчанию true)"},
-                "limit": {"type": "integer", "description": "Максимум записей (по умолчанию 20)"},
+                "table": {
+                    "type": "string",
+                    "description": "Имя таблицы (например, incident, change_request, sc_req_item)",
+                },
+                "active": {
+                    "type": "boolean",
+                    "description": "Только активные (по умолчанию true)",
+                },
+                "limit": {
+                    "type": "integer",
+                    "description": "Максимум записей (по умолчанию 20)",
+                },
             },
         },
     },
-
     # ── USER & GROUP ─────────────────────────────────────────────────────
     {
         "name": "user_info",
@@ -372,7 +535,10 @@ TOOLS = [
             "type": "object",
             "properties": {
                 "email": {"type": "string", "description": "Email пользователя"},
-                "name": {"type": "string", "description": "Имя пользователя (частичное совпадение)"},
+                "name": {
+                    "type": "string",
+                    "description": "Имя пользователя (частичное совпадение)",
+                },
             },
         },
     },
@@ -382,7 +548,10 @@ TOOLS = [
         "inputSchema": {
             "type": "object",
             "properties": {
-                "group_name": {"type": "string", "description": "Название группы (частичное совпадение)"},
+                "group_name": {
+                    "type": "string",
+                    "description": "Название группы (частичное совпадение)",
+                },
             },
             "required": ["group_name"],
         },

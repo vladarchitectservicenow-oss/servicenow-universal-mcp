@@ -41,7 +41,8 @@ class ToolHandlers:
     async def handle_incident_create(self, a: dict) -> str:
         payload = {
             "short_description": a["short_description"],
-            "impact": "2", "urgency": "2",
+            "impact": "2",
+            "urgency": "2",
         }
         if "priority" in a:
             payload["priority"] = str(a["priority"])
@@ -59,7 +60,9 @@ class ToolHandlers:
             payload["description"] = a["description"]
 
         result = await self.client.create("incident", payload)
-        return _ok(incident=result, number=result.get("number"), sys_id=result.get("sys_id"))
+        return _ok(
+            incident=result, number=result.get("number"), sys_id=result.get("sys_id")
+        )
 
     async def handle_incident_list(self, a: dict) -> str:
         query_parts = []
@@ -77,20 +80,32 @@ class ToolHandlers:
         limit = int(a.get("limit", 20))
         results = await self.client.list(
             "incident",
-            fields=["number", "short_description", "priority", "state", "assignment_group", "assigned_to", "sys_created_on"],
+            fields=[
+                "number",
+                "short_description",
+                "priority",
+                "state",
+                "assignment_group",
+                "assigned_to",
+                "sys_created_on",
+            ],
             query="^".join(query_parts),
             limit=limit,
         )
         return _ok(incidents=results, count=len(results))
 
     async def handle_incident_get(self, a: dict) -> str:
-        results = await self.client.list("incident", query=f"number={a['number']}", limit=1)
+        results = await self.client.list(
+            "incident", query=f"number={a['number']}", limit=1
+        )
         if not results:
             return _err(f"Incident {a['number']} not found")
         return _ok(incident=results[0])
 
     async def handle_incident_update(self, a: dict) -> str:
-        recs = await self.client.list("incident", query=f"number={a['number']}", limit=1)
+        recs = await self.client.list(
+            "incident", query=f"number={a['number']}", limit=1
+        )
         if not recs:
             return _err(f"Incident {a['number']} not found")
         sys_id = recs[0]["sys_id"]
@@ -144,7 +159,9 @@ class ToolHandlers:
             overdue=overdue,
             sampled=seen,
             truncated=truncated,
-            note=f"Общий total={total}, сгруппировано {seen} записей" if truncated else None,
+            note=f"Общий total={total}, сгруппировано {seen} записей"
+            if truncated
+            else None,
             by_field={group_by: groups},
         )
 
@@ -163,7 +180,15 @@ class ToolHandlers:
         limit = int(a.get("limit", 20))
         results = await self.client.list(
             "change_request",
-            fields=["number", "short_description", "type", "state", "approval", "risk", "sys_created_on"],
+            fields=[
+                "number",
+                "short_description",
+                "type",
+                "state",
+                "approval",
+                "risk",
+                "sys_created_on",
+            ],
             query="^".join(query_parts),
             limit=limit,
         )
@@ -171,14 +196,25 @@ class ToolHandlers:
 
     async def handle_change_create(self, a: dict) -> str:
         payload = {"short_description": a["short_description"]}
-        for f in ("type", "risk", "justification", "implementation_plan", "planned_start", "planned_end"):
+        for f in (
+            "type",
+            "risk",
+            "justification",
+            "implementation_plan",
+            "planned_start",
+            "planned_end",
+        ):
             if f in a:
                 payload[f] = a[f]
         result = await self.client.create("change_request", payload)
-        return _ok(change=result, number=result.get("number"), sys_id=result.get("sys_id"))
+        return _ok(
+            change=result, number=result.get("number"), sys_id=result.get("sys_id")
+        )
 
     async def handle_change_approve(self, a: dict) -> str:
-        recs = await self.client.list("change_request", query=f"number={a['number']}", limit=1)
+        recs = await self.client.list(
+            "change_request", query=f"number={a['number']}", limit=1
+        )
         if not recs:
             return _err(f"Change {a['number']} not found")
         sys_id = recs[0]["sys_id"]
@@ -205,7 +241,9 @@ class ToolHandlers:
             if grp:
                 payload["assignment_group"] = grp
         result = await self.client.create("problem", payload)
-        return _ok(problem=result, number=result.get("number"), sys_id=result.get("sys_id"))
+        return _ok(
+            problem=result, number=result.get("number"), sys_id=result.get("sys_id")
+        )
 
     async def handle_problem_list(self, a: dict) -> str:
         query_parts = []
@@ -218,7 +256,14 @@ class ToolHandlers:
         limit = int(a.get("limit", 20))
         results = await self.client.list(
             "problem",
-            fields=["number", "short_description", "state", "priority", "assignment_group", "sys_created_on"],
+            fields=[
+                "number",
+                "short_description",
+                "state",
+                "priority",
+                "assignment_group",
+                "sys_created_on",
+            ],
             query="^".join(query_parts),
             limit=limit,
         )
@@ -226,16 +271,22 @@ class ToolHandlers:
 
     async def handle_problem_link_incidents(self, a: dict) -> str:
         # Найти проблему
-        prb = await self.client.list("problem", query=f"number={a['problem_number']}", limit=1)
+        prb = await self.client.list(
+            "problem", query=f"number={a['problem_number']}", limit=1
+        )
         if not prb:
             return _err(f"Problem {a['problem_number']} not found")
         problem_id = prb[0]["sys_id"]
 
         linked = []
         for inc_num in a["incident_numbers"]:
-            incs = await self.client.list("incident", query=f"number={inc_num}", limit=1)
+            incs = await self.client.list(
+                "incident", query=f"number={inc_num}", limit=1
+            )
             if incs:
-                await self.client.update("incident", incs[0]["sys_id"], {"problem_id": problem_id})
+                await self.client.update(
+                    "incident", incs[0]["sys_id"], {"problem_id": problem_id}
+                )
                 linked.append(inc_num)
         return _ok(linked_incidents=linked, problem_number=a["problem_number"])
 
@@ -252,7 +303,13 @@ class ToolHandlers:
         limit = int(a.get("limit", 20))
         results = await self.client.list(
             "sc_cat_item",
-            fields=["sys_id", "name", "short_description", "category", "sys_class_name"],
+            fields=[
+                "sys_id",
+                "name",
+                "short_description",
+                "category",
+                "sys_class_name",
+            ],
             query="^".join(query_parts),
             limit=limit,
         )
@@ -260,7 +317,9 @@ class ToolHandlers:
 
     async def handle_request_create(self, a: dict) -> str:
         # Найти catalog item
-        items = await self.client.list("sc_cat_item", query=f"nameLIKE{a['catalog_item_name']}", limit=1)
+        items = await self.client.list(
+            "sc_cat_item", query=f"nameLIKE{a['catalog_item_name']}", limit=1
+        )
         if not items:
             return _err(f"Catalog item '{a['catalog_item_name']}' not found")
 
@@ -273,7 +332,9 @@ class ToolHandlers:
         import httpx
         from base64 import b64encode
 
-        auth = b64encode(f"{self.client.config.username}:{self.client.config.password}".encode()).decode()
+        auth = b64encode(
+            f"{self.client.config.username}:{self.client.config.password}".encode()
+        ).decode()
         cart_url = f"{self.client._base}/api/sn_sc/servicecatalog/cart"
         headers = {
             "Authorization": f"Basic {auth}",
@@ -283,11 +344,15 @@ class ToolHandlers:
 
         async with httpx.AsyncClient(timeout=30) as c:
             # Add to cart
-            add_resp = await c.post(cart_url, headers=headers, json={
-                "sysparm_id": items[0]["sys_id"],
-                "sysparm_quantity": a.get("quantity", 1),
-                "variables": a.get("variables", {}),
-            })
+            add_resp = await c.post(
+                cart_url,
+                headers=headers,
+                json={
+                    "sysparm_id": items[0]["sys_id"],
+                    "sysparm_quantity": a.get("quantity", 1),
+                    "variables": a.get("variables", {}),
+                },
+            )
             add_resp.raise_for_status()
 
             # Checkout
@@ -307,9 +372,15 @@ class ToolHandlers:
     async def handle_request_status(self, a: dict) -> str:
         number = a["number"]
         # Пробуем разные таблицы
-        for table, prefix in [("sc_request", "REQ"), ("sc_req_item", "RITM"), ("sc_task", "SCTASK")]:
+        for table, prefix in [
+            ("sc_request", "REQ"),
+            ("sc_req_item", "RITM"),
+            ("sc_task", "SCTASK"),
+        ]:
             if number.startswith(prefix):
-                results = await self.client.list(table, query=f"number={number}", limit=1)
+                results = await self.client.list(
+                    table, query=f"number={number}", limit=1
+                )
                 if results:
                     return _ok(status=results[0], table=table)
         return _err(f"Request {number} not found in any table")
@@ -322,7 +393,14 @@ class ToolHandlers:
                 query = f"approver={user}"
         results = await self.client.list(
             "sysapproval_approver",
-            fields=["sys_id", "sysapproval", "approver", "state", "sys_created_on", "comments"],
+            fields=[
+                "sys_id",
+                "sysapproval",
+                "approver",
+                "state",
+                "sys_created_on",
+                "comments",
+            ],
             query=f"state=requested^{query}" if query else "state=requested",
             limit=30,
         )
@@ -343,7 +421,16 @@ class ToolHandlers:
         limit = int(a.get("limit", 30))
         results = await self.client.list(
             "cmdb_ci",
-            fields=["sys_id", "name", "sys_class_name", "environment", "operational_status", "location", "owned_by", "sys_updated_on"],
+            fields=[
+                "sys_id",
+                "name",
+                "sys_class_name",
+                "environment",
+                "operational_status",
+                "location",
+                "owned_by",
+                "sys_updated_on",
+            ],
             query="^".join(query_parts) if query_parts else "",
             limit=limit,
         )
@@ -400,8 +487,12 @@ class ToolHandlers:
         if check in ("orphans", "all"):
             # CI без отношений: получаем все CI и все отношения, находим разницу
             all_rel_ids: set[str] = set()
-            rels_parent = await self.client.list("cmdb_rel_ci", fields=["parent"], limit=5000)
-            rels_child = await self.client.list("cmdb_rel_ci", fields=["child"], limit=5000)
+            rels_parent = await self.client.list(
+                "cmdb_rel_ci", fields=["parent"], limit=5000
+            )
+            rels_child = await self.client.list(
+                "cmdb_rel_ci", fields=["child"], limit=5000
+            )
             for r in rels_parent:
                 p = r.get("parent", {})
                 if isinstance(p, dict):
@@ -424,7 +515,10 @@ class ToolHandlers:
         if check in ("stale", "all"):
             # CI не обновлялись > 90 дней
             from datetime import datetime, timedelta, timezone
-            cutoff = (datetime.now(timezone.utc) - timedelta(days=90)).strftime("%Y-%m-%d")
+
+            cutoff = (datetime.now(timezone.utc) - timedelta(days=90)).strftime(
+                "%Y-%m-%d"
+            )
             stale_count = await self.client.count("cmdb_ci", f"sys_updated_on<{cutoff}")
             stale_pct = round(stale_count / total * 100, 1) if total > 0 else 0
             result["stale"] = {
@@ -445,13 +539,23 @@ class ToolHandlers:
         if "query" in a:
             # Split query into words and search across multiple fields
             words = a["query"].split()
-            search_terms = "^OR".join([f"short_descriptionLIKE{w}^{w}textLIKE{w}" for w in words])
+            search_terms = "^OR".join(
+                [f"short_descriptionLIKE{w}^{w}textLIKE{w}" for w in words]
+            )
             query_parts.append(search_terms)
 
         limit = int(a.get("limit", 10))
         results = await self.client.list(
             "kb_knowledge",
-            fields=["sys_id", "number", "short_description", "text", "category", "workflow_state", "sys_updated_on"],
+            fields=[
+                "sys_id",
+                "number",
+                "short_description",
+                "text",
+                "category",
+                "workflow_state",
+                "sys_updated_on",
+            ],
             query="^".join(query_parts),
             limit=limit,
         )
@@ -463,7 +567,6 @@ class ToolHandlers:
 
     async def handle_report_performance(self, a: dict) -> str:
         metric = a.get("metric", "mttr")
-        group = a.get("assignment_group", "")
 
         if metric == "sla_breach":
             count = await self.client.count("task_sla", "breached=true")
@@ -472,24 +575,47 @@ class ToolHandlers:
         if metric == "mttr":
             # Среднее время решения (упрощённо)
             resolved = await self.client.list("incident", query="state=6", limit=500)
-            return _ok(metric="mttr", resolved_count=len(resolved), note="Full MTTR calculation requires time-series analysis")
+            return _ok(
+                metric="mttr",
+                resolved_count=len(resolved),
+                note="Full MTTR calculation requires time-series analysis",
+            )
 
         if metric == "group_load":
-            incidents = await self.client.list("incident", fields=["assignment_group", "state"], query="active=true", limit=200)
+            incidents = await self.client.list(
+                "incident",
+                fields=["assignment_group", "state"],
+                query="active=true",
+                limit=200,
+            )
             group_load: dict[str, int] = {}
             for inc in incidents:
                 grp = inc.get("assignment_group", {})
-                grp_name = grp.get("display_value", "unassigned") if isinstance(grp, dict) else str(grp)
+                grp_name = (
+                    grp.get("display_value", "unassigned")
+                    if isinstance(grp, dict)
+                    else str(grp)
+                )
                 group_load[grp_name] = group_load.get(grp_name, 0) + 1
-            return _ok(metric="group_load", groups=sorted(group_load.items(), key=lambda x: -x[1]))
+            return _ok(
+                metric="group_load",
+                groups=sorted(group_load.items(), key=lambda x: -x[1]),
+            )
 
         if metric == "overdue_trend":
             overdue = await self.client.count("incident", "active=true^overdue=true")
             total_active = await self.client.count("incident", "active=true")
             rate = round(overdue / total_active * 100, 1) if total_active else 0
-            return _ok(metric="overdue_trend", overdue_count=overdue, total_active=total_active, overdue_pct=rate)
+            return _ok(
+                metric="overdue_trend",
+                overdue_count=overdue,
+                total_active=total_active,
+                overdue_pct=rate,
+            )
 
-        return _ok(message=f"Report type '{metric}' — use one of: sla_breach, mttr, group_load, overdue_trend")
+        return _ok(
+            message=f"Report type '{metric}' — use one of: sla_breach, mttr, group_load, overdue_trend"
+        )
 
     # ══════════════════════════════════════════════════════════════════════
     # WORKFLOW
@@ -502,7 +628,14 @@ class ToolHandlers:
         limit = int(a.get("limit", 20))
         results = await self.client.list(
             "wf_workflow_version",
-            fields=["sys_id", "name", "table", "published", "version", "sys_updated_on"],
+            fields=[
+                "sys_id",
+                "name",
+                "table",
+                "published",
+                "version",
+                "sys_updated_on",
+            ],
             query=f"published=true^{query}" if query else "published=true",
             limit=limit,
         )
@@ -519,7 +652,14 @@ class ToolHandlers:
         limit = int(a.get("limit", 20))
         results = await self.client.list(
             "sys_rest_message",
-            fields=["sys_id", "name", "endpoint", "active", "authentication_type", "sys_updated_on"],
+            fields=[
+                "sys_id",
+                "name",
+                "endpoint",
+                "active",
+                "authentication_type",
+                "sys_updated_on",
+            ],
             query=query,
             limit=limit,
         )
@@ -537,7 +677,15 @@ class ToolHandlers:
         limit = int(a.get("limit", 20))
         results = await self.client.list(
             "sys_script",
-            fields=["sys_id", "name", "collection", "when", "active", "script", "sys_updated_on"],
+            fields=[
+                "sys_id",
+                "name",
+                "collection",
+                "when",
+                "active",
+                "script",
+                "sys_updated_on",
+            ],
             query=query,
             limit=limit,
         )
@@ -549,15 +697,21 @@ class ToolHandlers:
 
     async def handle_user_info(self, a: dict) -> str:
         if "email" in a:
-            results = await self.client.list("sys_user", query=f"email={a['email']}", limit=1)
+            results = await self.client.list(
+                "sys_user", query=f"email={a['email']}", limit=1
+            )
         elif "name" in a:
-            results = await self.client.list("sys_user", query=f"nameLIKE{a['name']}", limit=5)
+            results = await self.client.list(
+                "sys_user", query=f"nameLIKE{a['name']}", limit=5
+            )
         else:
             return _err("Specify email or name")
         return _ok(users=results, count=len(results))
 
     async def handle_group_members(self, a: dict) -> str:
-        groups = await self.client.list("sys_user_group", query=f"nameLIKE{a['group_name']}", limit=1)
+        groups = await self.client.list(
+            "sys_user_group", query=f"nameLIKE{a['group_name']}", limit=1
+        )
         if not groups:
             return _err(f"Group '{a['group_name']}' not found")
         group_id = groups[0]["sys_id"]
@@ -567,7 +721,9 @@ class ToolHandlers:
             query=f"group={group_id}",
             limit=50,
         )
-        user_ids = [m["user"]["value"] for m in members if isinstance(m.get("user"), dict)]
+        user_ids = [
+            m["user"]["value"] for m in members if isinstance(m.get("user"), dict)
+        ]
         return _ok(
             group=groups[0]["name"],
             group_sys_id=group_id,
@@ -581,10 +737,16 @@ class ToolHandlers:
 
     async def _resolve_group(self, name: str) -> str | None:
         """Resolve group name → sys_id."""
-        groups = await self.client.list("sys_user_group", query=f"nameLIKE{name}", limit=1)
+        groups = await self.client.list(
+            "sys_user_group", query=f"nameLIKE{name}", limit=1
+        )
         return groups[0]["sys_id"] if groups else None
 
     async def _resolve_user(self, email_or_name: str) -> str | None:
         """Resolve user email/name → sys_id."""
-        users = await self.client.list("sys_user", query=f"email={email_or_name}^ORnameLIKE{email_or_name}", limit=1)
+        users = await self.client.list(
+            "sys_user",
+            query=f"email={email_or_name}^ORnameLIKE{email_or_name}",
+            limit=1,
+        )
         return users[0]["sys_id"] if users else None

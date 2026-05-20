@@ -6,18 +6,18 @@
 from __future__ import annotations
 
 import json
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 from mcp_server.modules import ToolHandlers
 from mcp_server.client import ServiceNowClient
 from mcp_server.config import SNConfig
-from mcp_server.tools import _ok, _err
 
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Fixtures
 # ═══════════════════════════════════════════════════════════════════════════
+
 
 @pytest.fixture
 def sn_config():
@@ -46,6 +46,7 @@ def parse_json(result: str) -> dict:
 # Dispatch
 # ═══════════════════════════════════════════════════════════════════════════
 
+
 class TestDispatch:
     async def test_unknown_tool(self, handlers):
         result = await handlers.dispatch("nonexistent", {})
@@ -64,11 +65,16 @@ class TestDispatch:
 # INCIDENT MANAGEMENT
 # ═══════════════════════════════════════════════════════════════════════════
 
+
 class TestIncidentCreate:
     async def test_minimal(self, handlers):
-        with patch.object(handlers.client, "create", new_callable=AsyncMock) as mock_create:
+        with patch.object(
+            handlers.client, "create", new_callable=AsyncMock
+        ) as mock_create:
             mock_create.return_value = {"sys_id": "abc123", "number": "INC0010001"}
-            result = await handlers.dispatch("incident_create", {"short_description": "Test"})
+            result = await handlers.dispatch(
+                "incident_create", {"short_description": "Test"}
+            )
             data = parse_json(result)
             assert data["success"] is True
             assert data["number"] == "INC0010001"
@@ -80,15 +86,20 @@ class TestIncidentCreate:
         assert data["success"] is False
 
     async def test_priority_out_of_range(self, handlers):
-        result = await handlers.dispatch("incident_create", {"short_description": "X", "priority": 99})
+        result = await handlers.dispatch(
+            "incident_create", {"short_description": "X", "priority": 99}
+        )
         data = parse_json(result)
         assert data["success"] is False
 
     async def test_description_too_long(self, handlers):
-        result = await handlers.dispatch("incident_create", {
-            "short_description": "X",
-            "description": "A" * 5000,
-        })
+        result = await handlers.dispatch(
+            "incident_create",
+            {
+                "short_description": "X",
+                "description": "A" * 5000,
+            },
+        )
         data = parse_json(result)
         assert data["success"] is False
 
@@ -105,7 +116,9 @@ class TestIncidentList:
     async def test_with_filters(self, handlers):
         with patch.object(handlers.client, "list", new_callable=AsyncMock) as mock_list:
             mock_list.return_value = [{"number": "INC001"}]
-            result = await handlers.dispatch("incident_list", {"state": "1", "limit": 50})
+            result = await handlers.dispatch(
+                "incident_list", {"state": "1", "limit": 50}
+            )
             data = parse_json(result)
             assert data["success"] is True
             args = mock_list.call_args[1]
@@ -136,11 +149,17 @@ class TestIncidentGet:
 
 class TestIncidentStats:
     async def test_default_grouping(self, handlers):
-        with patch.object(handlers.client, "count", new_callable=AsyncMock) as mock_count:
-            with patch.object(handlers.client, "list", new_callable=AsyncMock) as mock_list:
+        with patch.object(
+            handlers.client, "count", new_callable=AsyncMock
+        ) as mock_count:
+            with patch.object(
+                handlers.client, "list", new_callable=AsyncMock
+            ) as mock_list:
                 mock_count.return_value = 15
                 mock_list.return_value = [
-                    {"state": "1"}, {"state": "2"}, {"state": "2"},
+                    {"state": "1"},
+                    {"state": "2"},
+                    {"state": "2"},
                 ]
                 result = await handlers.dispatch("incident_stats", {})
                 data = parse_json(result)
@@ -152,11 +171,14 @@ class TestIncidentStats:
 # CHANGE MANAGEMENT
 # ═══════════════════════════════════════════════════════════════════════════
 
+
 class TestChangeCreate:
     async def test_minimal(self, handlers):
         with patch.object(handlers.client, "create", new_callable=AsyncMock) as mock:
             mock.return_value = {"number": "CHG001", "sys_id": "chg1"}
-            result = await handlers.dispatch("change_create", {"short_description": "Upgrade DB"})
+            result = await handlers.dispatch(
+                "change_create", {"short_description": "Upgrade DB"}
+            )
             data = parse_json(result)
             assert data["success"] is True
             assert data["number"] == "CHG001"
@@ -165,19 +187,27 @@ class TestChangeCreate:
 class TestChangeApprove:
     async def test_approve(self, handlers):
         with patch.object(handlers.client, "list", new_callable=AsyncMock) as mock_list:
-            with patch.object(handlers.client, "update", new_callable=AsyncMock) as mock_update:
+            with patch.object(
+                handlers.client, "update", new_callable=AsyncMock
+            ) as mock_update:
                 mock_list.return_value = [{"sys_id": "chg1", "number": "CHG001"}]
                 mock_update.return_value = {"number": "CHG001", "approval": "approved"}
-                result = await handlers.dispatch("change_approve", {"number": "CHG001", "approved": True})
+                result = await handlers.dispatch(
+                    "change_approve", {"number": "CHG001", "approved": True}
+                )
                 data = parse_json(result)
                 assert data["success"] is True
 
     async def test_reject(self, handlers):
         with patch.object(handlers.client, "list", new_callable=AsyncMock) as mock_list:
-            with patch.object(handlers.client, "update", new_callable=AsyncMock) as mock_update:
+            with patch.object(
+                handlers.client, "update", new_callable=AsyncMock
+            ) as mock_update:
                 mock_list.return_value = [{"sys_id": "chg1"}]
                 mock_update.return_value = {"number": "CHG001"}
-                result = await handlers.dispatch("change_approve", {"number": "CHG001", "approved": False})
+                result = await handlers.dispatch(
+                    "change_approve", {"number": "CHG001", "approved": False}
+                )
                 data = parse_json(result)
                 assert data["success"] is True
 
@@ -195,11 +225,14 @@ class TestChangeList:
 # PROBLEM MANAGEMENT
 # ═══════════════════════════════════════════════════════════════════════════
 
+
 class TestProblemCreate:
     async def test_minimal(self, handlers):
         with patch.object(handlers.client, "create", new_callable=AsyncMock) as mock:
             mock.return_value = {"number": "PRB001"}
-            result = await handlers.dispatch("problem_create", {"short_description": "Root cause"})
+            result = await handlers.dispatch(
+                "problem_create", {"short_description": "Root cause"}
+            )
             data = parse_json(result)
             assert data["success"] is True
 
@@ -216,16 +249,19 @@ class TestProblemList:
 class TestProblemLinkIncidents:
     async def test_link(self, handlers):
         with patch.object(handlers.client, "list", new_callable=AsyncMock) as mock_list:
-            with patch.object(handlers.client, "update", new_callable=AsyncMock) as mock_update:
+            with patch.object(handlers.client, "update", new_callable=AsyncMock):
                 mock_list.side_effect = [
                     [{"sys_id": "prb1"}],  # проблема
                     [{"sys_id": "inc1"}],  # инцидент 1
                     [{"sys_id": "inc2"}],  # инцидент 2
                 ]
-                result = await handlers.dispatch("problem_link_incidents", {
-                    "problem_number": "PRB001",
-                    "incident_numbers": ["INC001", "INC002"],
-                })
+                result = await handlers.dispatch(
+                    "problem_link_incidents",
+                    {
+                        "problem_number": "PRB001",
+                        "incident_numbers": ["INC001", "INC002"],
+                    },
+                )
                 data = parse_json(result)
                 assert data["success"] is True
                 assert len(data["linked_incidents"]) == 2
@@ -234,6 +270,7 @@ class TestProblemLinkIncidents:
 # ═══════════════════════════════════════════════════════════════════════════
 # SERVICE CATALOG
 # ═══════════════════════════════════════════════════════════════════════════
+
 
 class TestCatalogList:
     async def test_empty(self, handlers):
@@ -287,6 +324,7 @@ class TestRequestApprovals:
 # CMDB
 # ═══════════════════════════════════════════════════════════════════════════
 
+
 class TestCMDBSearch:
     async def test_all(self, handlers):
         with patch.object(handlers.client, "list", new_callable=AsyncMock) as mock:
@@ -298,7 +336,9 @@ class TestCMDBSearch:
     async def test_by_environment(self, handlers):
         with patch.object(handlers.client, "list", new_callable=AsyncMock) as mock:
             mock.return_value = []
-            result = await handlers.dispatch("cmdb_search", {"environment": "Production"})
+            result = await handlers.dispatch(
+                "cmdb_search", {"environment": "Production"}
+            )
             data = parse_json(result)
             assert data["success"] is True
 
@@ -311,7 +351,9 @@ class TestCMDBRelationships:
                 [{"sys_id": "rel1", "child": "ci2"}],  # дочерние
                 [{"sys_id": "rel2", "parent": "ci0"}],  # родительские
             ]
-            result = await handlers.dispatch("cmdb_relationships", {"ci_name": "PROD-DB-01"})
+            result = await handlers.dispatch(
+                "cmdb_relationships", {"ci_name": "PROD-DB-01"}
+            )
             data = parse_json(result)
             assert data["success"] is True
             assert "depends_on" in data
@@ -320,15 +362,21 @@ class TestCMDBRelationships:
     async def test_not_found(self, handlers):
         with patch.object(handlers.client, "list", new_callable=AsyncMock) as mock:
             mock.return_value = []
-            result = await handlers.dispatch("cmdb_relationships", {"ci_name": "NONEXISTENT"})
+            result = await handlers.dispatch(
+                "cmdb_relationships", {"ci_name": "NONEXISTENT"}
+            )
             data = parse_json(result)
             assert data["success"] is False
 
 
 class TestCMDBHealth:
     async def test_all(self, handlers):
-        with patch.object(handlers.client, "count", new_callable=AsyncMock) as mock_count:
-            with patch.object(handlers.client, "list", new_callable=AsyncMock) as mock_list:
+        with patch.object(
+            handlers.client, "count", new_callable=AsyncMock
+        ) as mock_count:
+            with patch.object(
+                handlers.client, "list", new_callable=AsyncMock
+            ) as mock_list:
                 mock_count.side_effect = [100, 5]  # total, stale
                 mock_list.return_value = [{"name": "Server-A"} for _ in range(50)]
                 result = await handlers.dispatch("cmdb_health", {})
@@ -340,6 +388,7 @@ class TestCMDBHealth:
 # ═══════════════════════════════════════════════════════════════════════════
 # KNOWLEDGE BASE
 # ═══════════════════════════════════════════════════════════════════════════
+
 
 class TestKBSearch:
     async def test_search(self, handlers):
@@ -359,11 +408,14 @@ class TestKBSearch:
 # REPORTING
 # ═══════════════════════════════════════════════════════════════════════════
 
+
 class TestReportPerformance:
     async def test_sla_breach(self, handlers):
         with patch.object(handlers.client, "count", new_callable=AsyncMock) as mock:
             mock.return_value = 3
-            result = await handlers.dispatch("report_performance", {"metric": "sla_breach"})
+            result = await handlers.dispatch(
+                "report_performance", {"metric": "sla_breach"}
+            )
             data = parse_json(result)
             assert data["success"] is True
             assert data["breached_count"] == 3
@@ -378,20 +430,26 @@ class TestReportPerformance:
     async def test_group_load(self, handlers):
         with patch.object(handlers.client, "list", new_callable=AsyncMock) as mock:
             mock.return_value = [{"assignment_group": {"display_value": "DBA"}}]
-            result = await handlers.dispatch("report_performance", {"metric": "group_load"})
+            result = await handlers.dispatch(
+                "report_performance", {"metric": "group_load"}
+            )
             data = parse_json(result)
             assert data["success"] is True
 
     async def test_overdue_trend(self, handlers):
         with patch.object(handlers.client, "count", new_callable=AsyncMock) as mock:
             mock.side_effect = [5, 50]  # overdue, total_active
-            result = await handlers.dispatch("report_performance", {"metric": "overdue_trend"})
+            result = await handlers.dispatch(
+                "report_performance", {"metric": "overdue_trend"}
+            )
             data = parse_json(result)
             assert data["success"] is True
             assert data["overdue_pct"] == 10.0
 
     async def test_unknown_metric(self, handlers):
-        result = await handlers.dispatch("report_performance", {"metric": "nonexistent"})
+        result = await handlers.dispatch(
+            "report_performance", {"metric": "nonexistent"}
+        )
         data = parse_json(result)
         assert data["success"] is True  # не ошибка, возвращает help
 
@@ -399,6 +457,7 @@ class TestReportPerformance:
 # ═══════════════════════════════════════════════════════════════════════════
 # WORKFLOW
 # ═══════════════════════════════════════════════════════════════════════════
+
 
 class TestWorkflowList:
     async def test_empty(self, handlers):
@@ -413,6 +472,7 @@ class TestWorkflowList:
 # INTEGRATIONS
 # ═══════════════════════════════════════════════════════════════════════════
 
+
 class TestIntegrationList:
     async def test_empty(self, handlers):
         with patch.object(handlers.client, "list", new_callable=AsyncMock) as mock:
@@ -426,6 +486,7 @@ class TestIntegrationList:
 # BUSINESS RULES
 # ═══════════════════════════════════════════════════════════════════════════
 
+
 class TestBusinessRuleList:
     async def test_default_table(self, handlers):
         with patch.object(handlers.client, "list", new_callable=AsyncMock) as mock:
@@ -437,7 +498,9 @@ class TestBusinessRuleList:
     async def test_custom_table(self, handlers):
         with patch.object(handlers.client, "list", new_callable=AsyncMock) as mock:
             mock.return_value = [{"name": "Auto-close"}]
-            result = await handlers.dispatch("business_rule_list", {"table": "change_request"})
+            result = await handlers.dispatch(
+                "business_rule_list", {"table": "change_request"}
+            )
             data = parse_json(result)
             assert data["success"] is True
 
@@ -445,6 +508,7 @@ class TestBusinessRuleList:
 # ═══════════════════════════════════════════════════════════════════════════
 # USERS & GROUPS
 # ═══════════════════════════════════════════════════════════════════════════
+
 
 class TestUserInfo:
     async def test_by_email(self, handlers):
@@ -482,6 +546,8 @@ class TestGroupMembers:
     async def test_not_found(self, handlers):
         with patch.object(handlers.client, "list", new_callable=AsyncMock) as mock:
             mock.return_value = []
-            result = await handlers.dispatch("group_members", {"group_name": "NONEXISTENT"})
+            result = await handlers.dispatch(
+                "group_members", {"group_name": "NONEXISTENT"}
+            )
             data = parse_json(result)
             assert data["success"] is False

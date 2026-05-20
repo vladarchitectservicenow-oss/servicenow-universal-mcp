@@ -53,6 +53,7 @@ class OpenAIAdapter:
 
     def __init__(self, config: LLMConfig):
         import openai
+
         self.model = config.model
         self.client = openai.AsyncOpenAI(
             api_key=config.api_key,
@@ -67,9 +68,7 @@ class OpenAIAdapter:
         }
         if tools:
             # Преобразуем в OpenAI tool format
-            openai_tools = [
-                {"type": "function", "function": t} for t in tools
-            ]
+            openai_tools = [{"type": "function", "function": t} for t in tools]
             kwargs["tools"] = openai_tools
             kwargs["tool_choice"] = "auto"
 
@@ -97,6 +96,7 @@ class AnthropicAdapter:
 
     def __init__(self, config: LLMConfig):
         import anthropic
+
         self.model = config.model
         self.client = anthropic.AsyncAnthropic(api_key=config.api_key)
 
@@ -131,23 +131,27 @@ class AnthropicAdapter:
             if block.type == "text":
                 text += block.text
             elif block.type == "tool_use":
-                tool_calls.append({
-                    "id": block.id,
-                    "type": "function",
-                    "function": {
-                        "name": block.name,
-                        "arguments": json.dumps(block.input),
-                    },
-                })
+                tool_calls.append(
+                    {
+                        "id": block.id,
+                        "type": "function",
+                        "function": {
+                            "name": block.name,
+                            "arguments": json.dumps(block.input),
+                        },
+                    }
+                )
 
         return {
-            "choices": [{
-                "message": {
-                    "role": "assistant",
-                    "content": text,
-                    "tool_calls": tool_calls if tool_calls else None,
+            "choices": [
+                {
+                    "message": {
+                        "role": "assistant",
+                        "content": text,
+                        "tool_calls": tool_calls if tool_calls else None,
+                    }
                 }
-            }]
+            ]
         }
 
     def extract_tool_calls(self, response: dict) -> list[dict]:

@@ -15,6 +15,7 @@ load_dotenv()
 @dataclass
 class SNConfig:
     """ServiceNow instance settings."""
+
     url: str = os.getenv("SNOW_INSTANCE_URL", "https://dev362840.service-now.com")
     username: str = os.getenv("SNOW_USERNAME", "admin")
     password: str = os.getenv("SNOW_PASSWORD", "")
@@ -24,6 +25,7 @@ class SNConfig:
 @dataclass
 class MCPConfig:
     """MCP server settings."""
+
     name: str = os.getenv("MCP_SERVER_NAME", "ServiceNow Universal MCP")
     port: int = int(os.getenv("MCP_SERVER_PORT", "8000"))
     log_level: str = os.getenv("MCP_LOG_LEVEL", "INFO")
@@ -32,7 +34,8 @@ class MCPConfig:
 @dataclass
 class LLMConfig:
     """LLM provider configuration — выбирает первого доступного."""
-    provider: str = ""           # openai | anthropic | deepseek | ollama | openrouter
+
+    provider: str = ""  # openai | anthropic | deepseek | ollama | openrouter
     model: str = ""
     api_key: str = ""
     base_url: Optional[str] = None
@@ -42,10 +45,34 @@ class LLMConfig:
         """Авто-обнаружение доступного провайдера из переменных окружения."""
         providers = [
             ("openai", "OPENAI_API_KEY", "OPENAI_MODEL", "gpt-4o", None),
-            ("anthropic", "ANTHROPIC_API_KEY", "ANTHROPIC_MODEL", "claude-sonnet-4", None),
-            ("deepseek", "DEEPSEEK_API_KEY", "DEEPSEEK_MODEL", "deepseek-chat", "https://api.deepseek.com"),
-            ("ollama", "OLLAMA_HOST", "OLLAMA_MODEL", "llama3", "http://localhost:11434/v1"),
-            ("openrouter", "OPENROUTER_API_KEY", "OPENROUTER_MODEL", "anthropic/claude-sonnet-4", "https://openrouter.ai/api/v1"),
+            (
+                "anthropic",
+                "ANTHROPIC_API_KEY",
+                "ANTHROPIC_MODEL",
+                "claude-sonnet-4",
+                None,
+            ),
+            (
+                "deepseek",
+                "DEEPSEEK_API_KEY",
+                "DEEPSEEK_MODEL",
+                "deepseek-chat",
+                "https://api.deepseek.com",
+            ),
+            (
+                "ollama",
+                "OLLAMA_HOST",
+                "OLLAMA_MODEL",
+                "llama3",
+                "http://localhost:11434/v1",
+            ),
+            (
+                "openrouter",
+                "OPENROUTER_API_KEY",
+                "OPENROUTER_MODEL",
+                "anthropic/claude-sonnet-4",
+                "https://openrouter.ai/api/v1",
+            ),
         ]
 
         for provider, key_env, model_env, default_model, base_url in providers:
@@ -56,7 +83,9 @@ class LLMConfig:
                         provider="ollama",
                         api_key="ollama",
                         model=os.getenv(model_env, default_model),
-                        base_url=f"{host.rstrip('/')}/v1" if "/v1" not in host else host,
+                        base_url=f"{host.rstrip('/')}/v1"
+                        if "/v1" not in host
+                        else host,
                     )
             else:
                 key = os.getenv(key_env, "")

@@ -4,7 +4,6 @@
 """CLI entry point — запуск MCP сервера."""
 
 import argparse
-import asyncio
 import logging
 import sys
 
@@ -17,9 +16,15 @@ def main():
     parser = argparse.ArgumentParser(
         description="ServiceNow Universal MCP Server — LLM-agnostic",
     )
-    parser.add_argument("--stdio", action="store_true", help="STDIO mode (for MCP clients)")
-    parser.add_argument("--http", action="store_true", help="HTTP mode (JSON-RPC over HTTP)")
-    parser.add_argument("--port", type=int, default=8000, help="HTTP server port (default: 8000)")
+    parser.add_argument(
+        "--stdio", action="store_true", help="STDIO mode (for MCP clients)"
+    )
+    parser.add_argument(
+        "--http", action="store_true", help="HTTP mode (JSON-RPC over HTTP)"
+    )
+    parser.add_argument(
+        "--port", type=int, default=8000, help="HTTP server port (default: 8000)"
+    )
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose logging")
     args = parser.parse_args()
 
@@ -35,7 +40,10 @@ def main():
         config = Config()
     except ValueError as e:
         print(f"ERROR: {e}", file=sys.stderr)
-        print("Copy .env.example → .env and configure at least one LLM provider.", file=sys.stderr)
+        print(
+            "Copy .env.example → .env and configure at least one LLM provider.",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
     log = logging.getLogger(__name__)

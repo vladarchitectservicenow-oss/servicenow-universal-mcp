@@ -5,12 +5,13 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field
 
 
 # ═══════════════════════════════════════════════════════════════════════════
 # INCIDENT MANAGEMENT
 # ═══════════════════════════════════════════════════════════════════════════
+
 
 class IncidentCreate(BaseModel):
     short_description: str = Field(..., min_length=1, max_length=160)
@@ -50,6 +51,7 @@ class IncidentStats(BaseModel):
 # CHANGE MANAGEMENT
 # ═══════════════════════════════════════════════════════════════════════════
 
+
 class ChangeList(BaseModel):
     type: str | None = None
     approval: str | None = None
@@ -70,13 +72,14 @@ class ChangeCreate(BaseModel):
 
 class ChangeApprove(BaseModel):
     number: str = Field(..., min_length=1, max_length=40)
-    approved: bool = ...
+    approved: bool
     comments: str | None = Field(default=None, max_length=4000)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
 # PROBLEM MANAGEMENT
 # ═══════════════════════════════════════════════════════════════════════════
+
 
 class ProblemCreate(BaseModel):
     short_description: str = Field(..., min_length=1, max_length=160)
@@ -99,6 +102,7 @@ class ProblemLinkIncidents(BaseModel):
 # ═══════════════════════════════════════════════════════════════════════════
 # SERVICE CATALOG
 # ═══════════════════════════════════════════════════════════════════════════
+
 
 class CatalogList(BaseModel):
     search: str | None = None
@@ -125,6 +129,7 @@ class RequestApprovals(BaseModel):
 # CMDB
 # ═══════════════════════════════════════════════════════════════════════════
 
+
 class CMDBSearch(BaseModel):
     name: str | None = None
     class_: str | None = Field(default=None, alias="class")
@@ -144,6 +149,7 @@ class CMDBHealth(BaseModel):
 # KNOWLEDGE BASE
 # ═══════════════════════════════════════════════════════════════════════════
 
+
 class KBSearch(BaseModel):
     query: str = Field(..., min_length=1, max_length=500)
     category: str | None = None
@@ -153,6 +159,7 @@ class KBSearch(BaseModel):
 # ═══════════════════════════════════════════════════════════════════════════
 # REPORTING
 # ═══════════════════════════════════════════════════════════════════════════
+
 
 class ReportPerformance(BaseModel):
     metric: str = Field(..., max_length=40)
@@ -164,6 +171,7 @@ class ReportPerformance(BaseModel):
 # WORKFLOW
 # ═══════════════════════════════════════════════════════════════════════════
 
+
 class WorkflowList(BaseModel):
     name: str | None = None
     limit: int = Field(default=20, ge=1, le=1000)
@@ -172,6 +180,7 @@ class WorkflowList(BaseModel):
 # ═══════════════════════════════════════════════════════════════════════════
 # INTEGRATIONS
 # ═══════════════════════════════════════════════════════════════════════════
+
 
 class IntegrationList(BaseModel):
     name: str | None = None
@@ -182,6 +191,7 @@ class IntegrationList(BaseModel):
 # BUSINESS RULES
 # ═══════════════════════════════════════════════════════════════════════════
 
+
 class BusinessRuleList(BaseModel):
     table: str = Field(default="incident", max_length=80)
     active: bool = True
@@ -191,6 +201,7 @@ class BusinessRuleList(BaseModel):
 # ═══════════════════════════════════════════════════════════════════════════
 # USERS & GROUPS
 # ═══════════════════════════════════════════════════════════════════════════
+
 
 class UserInfo(BaseModel):
     email: str | None = None

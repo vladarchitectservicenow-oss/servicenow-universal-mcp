@@ -33,6 +33,7 @@ def set_request(rid: str) -> None:
 
 # ── JSON Formatter ─────────────────────────────────────────────────────────
 
+
 class JSONFormatter(logging.Formatter):
     """Formats records as single-line JSON."""
 
@@ -79,9 +80,11 @@ def setup_logging(level: int = logging.INFO, json_output: bool = True):
     if json_output:
         handler.setFormatter(JSONFormatter())
     else:
-        handler.setFormatter(logging.Formatter(
-            "%(asctime)s [%(levelname)s] %(message)s",
-        ))
+        handler.setFormatter(
+            logging.Formatter(
+                "%(asctime)s [%(levelname)s] %(message)s",
+            )
+        )
 
     root.handlers = [handler]
 
@@ -92,6 +95,7 @@ def setup_logging(level: int = logging.INFO, json_output: bool = True):
 
 
 # ── Timer context ──────────────────────────────────────────────────────────
+
 
 class LogTimer:
     """Context manager that logs elapsed time."""
@@ -108,8 +112,10 @@ class LogTimer:
 
     def __exit__(self, *args):
         elapsed = (time.monotonic() - self.start) * 1000
-        self.logger.info({
-            "operation": self.operation,
-            "elapsed_ms": round(elapsed, 1),
-            **self.meta,
-        })
+        self.logger.info(
+            {
+                "operation": self.operation,
+                "elapsed_ms": round(elapsed, 1),
+                **self.meta,
+            }
+        )

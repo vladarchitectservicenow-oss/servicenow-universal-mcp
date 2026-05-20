@@ -8,5 +8,6 @@ def pytest_collection_modifyitems(config, items):
     for item in items:
         if hasattr(item, "obj") and hasattr(item.obj, "__code__"):
             import inspect
+
             if inspect.iscoroutinefunction(item.obj):
                 item.add_marker(pytest.mark.asyncio)
