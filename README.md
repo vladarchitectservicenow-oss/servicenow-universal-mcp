@@ -234,6 +234,35 @@ sequenceDiagram
 
 ## Usage Guide
 
+### DeepSeek Integration Example
+
+Connecting DeepSeek-V3 to ServiceNow via the universal MCP server:
+
+```bash
+# 1. Start the MCP server with your instance config
+python3 mcp_server.py --instance dev123456 --user admin --pass "$SN_PASS"
+
+# 2. Configure your LLM client's MCP settings
+# For Hermes Agent (config.yaml):
+mcp:
+  servicenow:
+    transport: stdio
+    command: python3
+    args:
+      - mcp_server.py
+      - --instance
+      - dev123456
+      - --user
+      - admin
+
+# 3. Verify connectivity
+# The LLM can now query ServiceNow tables directly:
+# "Show me all open incidents from the past 24 hours"
+```
+
+This enables any MCP-compatible LLM (OpenAI, Claude, DeepSeek, Ollama, OpenRouter) 
+to query, create, and update ServiceNow records without custom API code.
+
 ### Connecting an MCP Client
 
 ```python
